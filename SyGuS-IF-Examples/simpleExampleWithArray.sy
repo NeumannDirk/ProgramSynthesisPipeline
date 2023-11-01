@@ -1,0 +1,39 @@
+(set-logic AUFLIA)
+
+;(set-option :lang sygus2)
+;(set-option :produce-models true)
+;(set-option :incremental true)
+
+(synth-fun foo ((a (Array Int Int)) (i Int)) (Array Int Int)
+	((Start (Array Int Int)) (StartInt Int) (StartBool Bool))
+	(
+		(Start (Array Int Int)
+			((store a StartInt StartInt)
+			)
+		)
+		(StartInt Int 
+			(0 
+			1 
+			i
+			(+ StartInt StartInt)
+            (- StartInt StartInt)
+            (ite StartBool StartInt StartInt)
+			(select a StartInt)
+			)
+		)
+		(StartBool Bool 
+			((and StartBool StartBool)
+            (not StartBool)
+            (<= StartInt StartInt)
+			)
+		)
+	)
+)
+
+(declare-var i Int)
+(declare-var x (Array Int Int))
+
+
+;(constraint (= (foo x i) (+ i 2)))
+(constraint (= (select (foo x i) i) 2))
+(check-synth)

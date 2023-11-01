@@ -1,0 +1,26 @@
+(set-logic LIA)
+
+;deine predicates for pre and post condtions
+(define-fun preCondition ((var_pre Int) (const_pre Int)) Bool (= var_pre const_pre))
+(define-fun postCondition ((var_post Int) (const_post Int)) Bool (= var_post (+ const_post 3)))
+
+(synth-fun addThree ((x Int)) Int
+  ((Start Int))
+  ((Start Int (0 1 x
+               (+ Start Start)
+               (- Start Start)
+               ))
+   )
+)
+
+;variable
+(declare-var y Int)
+;there is no define-const but c is used as constants
+(declare-var c Int)
+
+;But here I cannot pass c into addThree and I cannot know if it has changed
+;I need tuples and extraction methods for them to pass all vars and consts in
+;and get all updates out to actually check all the conditions
+(constraint (=> (preCondition y c) (postCondition (addThree y) c)))
+
+(check-synth)

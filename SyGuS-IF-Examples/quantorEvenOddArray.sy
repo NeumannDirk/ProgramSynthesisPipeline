@@ -1,0 +1,21 @@
+(set-logic ALL)
+
+(synth-fun createArray ((n Int)) (Array Int Int))
+ 
+(declare-var n Int)
+
+(constraint 
+  (forall ((i Int))
+    (=> 
+      (and (>= i 0) (< i n))
+      (= 
+        (select (createArray n) i)
+        (ite (= (mod i 2) 0) 3 4)
+      )
+    )
+  )
+)
+
+;This will not find an answer in reasonable time 
+(constraint (forall ((i Int)) (= i i)))
+(check-synth)

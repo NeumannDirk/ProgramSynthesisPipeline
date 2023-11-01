@@ -1,0 +1,12 @@
+(set-logic ALL)
+
+(synth-fun storeArray ((a (Array Int Int)) (i Int) (j Int)) (Array Int Int))
+
+(declare-var arr (Array Int Int))
+(declare-var inx Int)
+(declare-var val Int)
+
+;This is just a little test to check if a store call can be synthesized
+(constraint (= (select (storeArray arr inx val) inx) val))
+
+(check-synth)

@@ -1,0 +1,31 @@
+(set-logic ALL)
+
+(synth-fun myImpl ((a Bool) (b Bool)) Bool
+    ((Start Bool))
+    (
+        (Start Bool 
+            (
+			a
+			b
+			true
+			false
+			(and Start Start)
+            (not Start)
+            )
+        )
+    )
+)
+(synth-fun myEqui ((a Bool) (b Bool)) Bool)
+(synth-fun myXOR ((a Bool) (b Bool)) Bool)
+
+(declare-var x Bool)
+(declare-var y Bool)
+
+;impl 
+(constraint (= (=> x y) (myImpl x y)))
+;äqui 
+(constraint (= (= x y) (myEqui x y)))
+;xor  
+(constraint (= (not (= x y)) (myXOR x y)))
+
+(check-synth)

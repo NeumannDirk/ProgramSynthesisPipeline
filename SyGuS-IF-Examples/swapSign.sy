@@ -1,0 +1,29 @@
+(set-logic ALL)
+
+(synth-fun swapSign ((x Int)) Int
+  ((Start Int))
+  ((Start Int (0 1 x
+               (+ Start Start)
+               (- Start Start)
+               (* Start Start)
+               ))
+   ))
+
+;variable
+(declare-var y Int)
+;constants
+(declare-var c Int)
+
+(constraint (=> (<= y 0) (>= (swapSign y) 0)))
+(constraint (=> (>= y 0) (<= (swapSign y) 0)))
+;Third condition needed, or function returns just 0
+(constraint (=> (not (= y 0)) (not (= (swapSign y) 0))))
+
+;Simpler would be this constraint
+(constraint (=> (> y 0) (< (swapSign y) 0)))
+(constraint (=> (> y 0) (< (swapSign y) 0)))
+
+
+
+(check-synth)
+

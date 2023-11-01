@@ -1,0 +1,58 @@
+(set-logic LIA)
+
+(declare-datatype Tuple ((empty) (mkTuple (getField1 Int) (getField2 Int))))
+
+(synth-fun increaseInputs ((a Int) (b Int)) Tuple
+    ((Start Tuple) (StartInt Int) (StartBool Bool))
+	(
+		(Start Tuple
+			((mkTuple StartInt StartInt)
+			)
+		)
+		(StartInt Int 
+			(0 
+			1
+			a
+			b			
+			(+ StartInt StartInt)
+            (- StartInt StartInt)
+            (ite StartBool StartInt StartInt)
+			)
+		)
+		(StartBool Bool 
+			((and StartBool StartBool)
+            (not StartBool)
+            (<= StartInt StartInt)
+			)
+		)
+	)
+)
+(synth-fun intExp ((a Int) (b Int)) Tuple)
+
+;variables
+(declare-var x Int)
+(declare-var y Int)
+;there is no define-const but c and d are used as constants
+(declare-var c Int)
+(declare-var d Int)
+
+;(constraint (=> true (= (increaseInputs 1 1) (mkTuple 1 1)))) ; Example 
+
+;(constraint (=> true (= (increaseInputs 1 1) (mkTuple 2 3)))) ; Example
+;(define-fun increaseInputs ((a Int) (b Int)) Tuple (let ((_let_1 (+ 1 1))) (mkTuple _let_1 (+ 1 _let_1))))
+
+;(constraint (=> (and (= x c) (= y d)) (= (increaseInputs x y) (mkTuple (+ d 1) (+ d 0)))))
+
+;(constraint (=> (and (= x c) (= y d)) (= (increaseInputs x y) (mkTuple (+ d 2) (+ c 2)))))
+(constraint (=> (and (= x c) (= y d)) (= (intExp x y) (mkTuple (+ d 2) (+ c 2)))))
+
+
+;(constraint (=> true (= (getField2 (mkTuple x y) y)))
+
+;(constraint (=> (= x c) (= (getField1 (increaseInputs x y)) (+ c 1))))
+;(constraint (=> (= y d) (= (getField2 (increaseInputs x y)) (+ d 1))))
+
+;(constraint (= (getField2 (increaseInputs x y)) y))
+
+
+(check-synth)

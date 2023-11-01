@@ -1,0 +1,20 @@
+(set-logic LIA)
+
+(synth-fun addThree ((x Int)) Int
+  ((Start Int))
+  ((Start Int (0 1 x
+               (+ Start Start)
+               (- Start Start)
+               ))
+   )
+)
+
+;variable
+(declare-var y Int)
+;there is no define-const but c is used as constants
+(declare-var c Int)
+
+(constraint (=> (= y c) (= (addThree y) (+ c 3))))
+
+(check-synth)
+
