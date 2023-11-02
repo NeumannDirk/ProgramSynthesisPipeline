@@ -1,0 +1,45 @@
+(set-logic LIA)
+
+(declare-datatype Tuple ((empty) (mkTuple (getField1 Int) (getField2 Int))))
+
+;variables for condition-definition
+(declare-var x_preCon Int)
+(declare-var x_postCon Int)
+;constants
+(declare-var c_preCon Int)
+(declare-var c_postCon Int)
+
+;pre- and postcondition
+(define-fun preCondition ((x_preCon Int) (c_preCon Int)) Bool (= x_preCon c_preCon))
+(define-fun postCondition ((x_postCon Int) (c_postCon Int)) Bool (= x_postCon (+ c_postCon 1)))
+
+
+(synth-fun increaseInputs ((x Int) (c Int)) Tuple)
+
+
+;variables
+(declare-var x_pre Int)
+(declare-var x_post Int)
+;constants
+(declare-var c_pre Int)
+(declare-var c_post Int)
+
+;(= (increaseInputs x_pre c_pre) (mkTuple x_post c_post))
+
+(constraint 
+(forall ((x_pre Int)(x_post Int)(c_pre Int)(c_post Int))
+(=> 
+    (and
+        (preCondition x_pre c_pre)
+        (= x_post (getField1 (increaseInputs x_pre c_pre)))
+        (= c_post (getField2 (increaseInputs x_pre c_pre)))
+        
+    )
+    (and
+        
+        (postCondition x_post c_post)
+        (= c_pre c_post)
+    )
+)))
+
+(check-synth)
