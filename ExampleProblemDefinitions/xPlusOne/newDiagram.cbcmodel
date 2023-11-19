@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:de.tu-bs.cs.isf.cbc.cbcmodel="http://www.example.org/cbcmodel">
+  <de.tu-bs.cs.isf.cbc.cbcmodel:CbCFormula name="newDiagram" comment="">
+    <statement name="Statement" id="53bcd237-9d00-47dc-8320-f4315dbf3667">
+      <refinement xsi:type="de.tu-bs.cs.isf.cbc.cbcmodel:CompositionStatement" name="compositionStatement" id="a6403909-6f99-4fbe-98c3-98dd00715582">
+        <firstStatement name="statement1" id="614fa2ee-7ac9-4e88-ae0b-725b1bdd135a">
+          <refinement name="x = x+1;" id="4057a6e8-c7a5-4d44-82df-8f3b3d459ccd">
+            <postCondition name="x == c+1">
+              <modifiables>x</modifiables>
+            </postCondition>
+            <preCondition name="x == c"/>
+          </refinement>
+          <postCondition name="x == c+1">
+            <modifiables>x</modifiables>
+          </postCondition>
+          <preCondition name="x == c"/>
+        </firstStatement>
+        <secondStatement name="statement2" id="55a4bd2c-b876-41c3-b6d9-4f886ad5c8d2">
+          <refinement name="x++;" id="9da88e1c-9d05-45e6-a0d9-0668ca965581">
+            <postCondition name="x == c+2">
+              <modifiables>x</modifiables>
+            </postCondition>
+            <preCondition name="x == c+1">
+              <modifiables>x</modifiables>
+            </preCondition>
+          </refinement>
+          <postCondition name="x == c+2">
+            <modifiables>x</modifiables>
+          </postCondition>
+          <preCondition name="x == c+1">
+            <modifiables>x</modifiables>
+          </preCondition>
+        </secondStatement>
+        <intermediateCondition name="x == c+1">
+          <modifiables>x</modifiables>
+        </intermediateCondition>
+      </refinement>
+      <postCondition name="x == c+2">
+        <modifiables>x</modifiables>
+      </postCondition>
+      <preCondition name="x == c"/>
+    </statement>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:CbCFormula>
+  <de.tu-bs.cs.isf.cbc.cbcmodel:JavaVariables>
+    <variables name="int x"/>
+    <variables name="int c" kind="GLOBAL"/>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:JavaVariables>
+</xmi:XMI>
