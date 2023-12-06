@@ -52,7 +52,6 @@ def parse_tree(tree):
         #print(f"tree.data: {tree.data}")
 
         if tree.data == "start":
-            #formula-node
             formula_node = Formula("", [])
             for child in tree.children:
                 if isinstance(child, Tree):
