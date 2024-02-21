@@ -1,0 +1,31 @@
+(set-logic ALL)
+(declare-datatype Tuple ((empty) (mkTuple (getField0 Int)(getField1 Int))))
+
+(declare-var x_preCon Int)
+(declare-var x_postCon Int)
+(declare-var c_preCon Int)
+(declare-var c_postCon Int)
+
+(define-fun preCondition ((x_preCon Int) (c_preCon Int)) Bool (and ( =   x_preCon   c_preCon )))
+
+(define-fun postCondition ((x_postCon Int) (c_postCon Int)) Bool (and ( =   x_postCon   ( +   c_postCon   1 ) )))
+
+(synth-fun targetFunction ((x Int) (c Int)) Tuple)
+
+(declare-var x_in Int)
+(declare-var x_out Int)
+(declare-var c_in Int)
+(declare-var c_out Int)
+
+(constraint (forall ((x_in Int) (x_out Int) (c_in Int) (c_out Int)) (=>
+	(and
+		(preCondition x_in c_in)
+		(= x_out (getField0 (targetFunction x_in c_in)))
+		(= c_out (getField1 (targetFunction x_in c_in)))
+	)
+	(and
+		(postCondition x_out c_out)
+		(= c_in c_out)
+	)
+)))
+(check-synth)

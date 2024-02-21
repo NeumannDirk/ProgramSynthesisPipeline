@@ -1,0 +1,31 @@
+(set-logic ALL)
+
+;GOAL
+;(define-fun toggleArrayAt ((arr BoundedArray) (index Int)) BoundedArray 
+;    (storeInArray a i (not (getValue (selectFromArray a i))))
+;)
+;(synth-fun addOneElem ((s (Seq Int)) (t (Seq Int))) (Seq Int))
+;(declare-var a (Seq Int))
+;(declare-var b (Seq Int))
+;(constraint (= (seq.++ a b) (addOneElem a b)))
+
+(synth-fun addOneAtEach ((s (Seq Int))) (Seq Int))
+
+(constraint (forall ((index Int) (a (Seq Int)) (b (Seq Int))) (=>
+    (and
+        (< index (seq.len a))
+        (>= index 0)
+        (= b (addOneAtEach a))
+    )
+    (and
+        (= (seq.len a) (seq.len b))
+        (= (seq.nth b index) (+ 1 (seq.nth a index)))
+    )
+)))
+
+
+(check-synth)
+
+;seq.len == 4
+;(seq.contains s (seq.unit (seq.nth s 5)))
+;punktweise Änderungen zuerst

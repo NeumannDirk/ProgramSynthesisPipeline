@@ -1,0 +1,59 @@
+(assert 
+    (not 
+        (and 
+            (and 
+                (and 
+                    (and 
+                        (and 
+                            (and 
+                                (and 
+                                    (and 
+                                        (and 
+                                            (and 
+                                                (u_maxi u_A (i2u 0) (i2u (+ (u2i u_j) 1)) u_i) 
+                                                (not (= u_A k_null))
+                                            ) 
+                                            (> 
+                                                (u2i (k_length u_A)) 
+                                                0
+                                            )
+                                        ) 
+                                        (< 
+                                            (u2i (k_length u_A)) 
+                                            10
+                                        )
+                                    ) 
+                                    (>= 
+                                        (u2i u_i) 
+                                        0
+                                    )
+                                ) 
+                                (< 
+                                    (u2i u_i) 
+                                    (u2i (k_length u_A))
+                                )
+                            ) 
+                            (>= 
+                                (u2i u_j) 
+                                0
+                            )
+                        ) 
+                        (<= 
+                            (u2i u_j) 
+                            (u2i (k_length u_A))
+                        )
+                    ) 
+                    (= 
+                        (cast (k_select u_heap u_A |field_java.lang.Object::<created>|) sort_boolean) 
+                        (b2u true)
+                    )
+                ) 
+                (= 
+                    (cast (k_select u_heap u_A_old |field_java.lang.Object::<created>|) sort_boolean) 
+                    (b2u true)
+                )
+            ) 
+            (k_wellFormed u_heap)
+        )
+    )
+)

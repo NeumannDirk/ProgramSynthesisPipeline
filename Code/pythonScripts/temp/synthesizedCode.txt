@@ -1,0 +1,3 @@
+(
+(define-fun targetFunction ((x Int) (c Int)) Tuple (mkTuple (+ c 1) c))
+)

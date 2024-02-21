@@ -2,8 +2,18 @@ import re
 from lark import Lark
 from lark import Lark, Tree, Token
 
-from FormulaTree import parse_tree, delete_unary_wrapper, delete_function, simplify
+from FormulaTree import (
+    parse_tree,
+    delete_unary_wrapper,
+    delete_function,
+    simplify_and,
+    remove_cast,
+    replace_fn_name,
+    simplify_created,
+    replace_array_access,
+)
 from FormulaTree import Formula, AtomicArgument
+
 
 def print_tree(tree, indent=0):
     if isinstance(tree, Token):
@@ -12,6 +22,7 @@ def print_tree(tree, indent=0):
         print(" " * indent + f"{tree.data}")
         for subtree in tree.children:
             print_tree(subtree, indent + 4)
+
 
 def print_tree_to_sygus(tree):
     if isinstance(tree, Formula):
@@ -22,6 +33,35 @@ def print_tree_to_sygus(tree):
         return ret
     elif isinstance(tree, AtomicArgument):
         return tree.value
+
+
+def cut_smt_assertion_from_file(input_file_name):
+    with open(input_file_name, "r") as input_file:
+        input_text = input_file.read()
+
+    start_marker = "; --- Sequent"
+    end_marker = "(check-sat)"
+    lines = input_text.split("\n")
+    start_index = -1
+    end_index = len(lines)
+
+    for i, line in enumerate(lines):
+        if start_marker in line:
+            start_index = i
+        if end_marker in line:
+            end_index = i
+            break
+
+    input_text = "\n".join(lines[start_index + 1 : end_index])
+
+    match = re.match(r"\(assert \(not (.*)\)\)$", input_text)
+    if match:
+        input_text = match.group(1)
+    else:
+        print("String did not start and end as expected. Not making changes.")
+
+    return input_text
+
 
 grammar_old = """
 start: formula
@@ -43,12 +83,13 @@ BOOL: "true" | "false"
 """
 
 grammar = """
-start: "(" function_name arguments ")"
+start: "(" function_name? arguments ")"
 
-arguments: ((NAME | NUMBER | BOOL | start) (WS (NAME | NUMBER | BOOL | start))*)?
+arguments: ((NAME | NUMBER | BOOL | CREATED | start) (WS (NAME | NUMBER | BOOL | CREATED | start))*)?
 
-!function_name: NAME | "=" | "=<>=" | "+" | "-" | "!=" | "!" | "<" | ">" | "<=" | ">=" | "$" | "%"
+!function_name: NAME | "=" | "=<>=" | "+" | "-" | "!=" | "!" | "<" | ">" | "<=" | ">=" | "$" | "%" | "=>"
 
+CREATED: "|field_java.lang.Object::<created>|"
 NUMBER: /[0-9]+/
 BOOL: "true" | "false"
 
@@ -57,90 +98,37 @@ BOOL: "true" | "false"
 %ignore WS
 """
 
-def parse_smt_to_tree(input_file_name):
+
+def parse_smt_to_tree(smt_text):
     parser = Lark(grammar)
-
-    with open(input_file_name, 'r') as input_file:
-        input_text = input_file.read()
-
-
-    start_marker = "; --- Sequent"
-    end_marker = "(check-sat)"
-    lines = input_text.split('\n')
-    start_index = -1
-    end_index = len(lines)
-
-    for i, line in enumerate(lines):
-        if start_marker in line:
-            start_index = i
-        if end_marker in line:
-            end_index = i
-            break
-
-    input_text = '\n'.join(lines[start_index+1:end_index])
-
-    #print(input_text)
-    match = re.match(r'\(assert \(not (.*)\)\)$', input_text)
-    if match:
-        input_text = match.group(1)
-        #print("String started and ended as expected.")
-    else:
-        print("String did not start and end as expected. Not making changes.")
-
-    #print("Relevant input: ")    
-    #print(input_text)
-
-    #input_string = "(assert (not (and (and (= u_x (i2u (+ (u2i u_c) 1))) (wellformed heap1 (and heap1 heap2))) true)))"
-    #input_string2 = "(=<>= u_x (+ 1 2))"
-    #input_string2 = "(and true)"
-
-    tree = parser.parse(input_text)
-    #print(tree)
-    #print(tree.pretty())
-    #print_tree(tree)
-
+    tree = parser.parse(smt_text)
+    # print_tree(tree)
     parsed_formula = parse_tree(tree)
-    #print(parsed_formula.toString())
+    # print(parsed_formula.toString_old())
+    return parsed_formula
 
 
-    #print(parsed_formula.function_name)  # Example of accessing function name in the root formula
-    #print(parsed_formula.get_atomar_arguments())  # Example of getting literals from the root formula
-    #print(parsed_formula.get_formular_arguments())  # Example of getting formulas from the root formula
+def cleanup_tree_from_smt(parsed_formula):
 
-    # Example of deletion of "i2u" function
-
-    #print(f"Unwrap \"i2u\"")
-    parsed_formula = delete_unary_wrapper(parsed_formula, "i2u")
-    #print(parsed_formula.toString())
-    #print(f"Unwrap \"u2i\"")
-    parsed_formula = delete_unary_wrapper(parsed_formula, "u2i")
-    #print(parsed_formula.toString())
-
-    #print(f"Unwrap \"assert\"")
-    #parsed_formula = delete_unary_wrapper(parsed_formula, "assert")
-    #print(parsed_formula.toString())
-    #print(f"Unwrap \"not\"")
-    #parsed_formula = delete_unary_wrapper(parsed_formula, "not")
-    #print(parsed_formula.toString())
-
-    #print(f"Delete \"k_wellFormed\"")
-    parsed_formula = delete_function(parsed_formula, "k_wellFormed")
-    #print(parsed_formula.toString())
-
-
-    #print(f"Simplify \"and\"")
-    parsed_formula = simplify(parsed_formula, "and")
-    #print(f"Done Simplify \"and\"")
-    #print(parsed_formula)
-    #print(parsed_formula.toString())
-    #print("Final result: ")
-    flat_string = print_tree_to_sygus(parsed_formula)
-    #print(flat_string)
-    
-    return flat_string
-    exit()
-
-
-    output_file_name = input_file_name.replace('.txt', '_essence.txt')
-    with open(output_file_name, 'w') as output_file:
-        output_file.write(flat_string)
+    print("start: " + print_tree_to_sygus(parsed_formula))
+    new_parsed_formula = delete_unary_wrapper(parsed_formula, "i2u")
+    new_parsed_formula = delete_unary_wrapper(new_parsed_formula, "u2i")
+    new_parsed_formula = delete_unary_wrapper(new_parsed_formula, "b2u")
+    new_parsed_formula = delete_unary_wrapper(new_parsed_formula, "u2b")
+    new_parsed_formula = delete_function(new_parsed_formula, "k_wellFormed")
+    # print("deleting wrappers...")
+    # print("done" + print_tree_to_sygus(new_parsed_formula))
+    new_parsed_formula = remove_cast(new_parsed_formula, "sort_int")
+    # print("after: " + print_tree_to_sygus(new_parsed_formula))
+    # new_parsed_formula = simplify_created(new_parsed_formula)
+    # print("after: " + print_tree_to_sygus(new_parsed_formula))
+    new_parsed_formula = replace_fn_name(
+        new_parsed_formula, to_replace="k_length", replace_by="seq.len"
+    )
+    # print("after: " + print_tree_to_sygus(new_parsed_formula))
+    # print("simplified0: " + print_tree_to_sygus(new_parsed_formula))
+    new_parsed_formula = simplify_created(new_parsed_formula)
+    new_parsed_formula = simplify_and(new_parsed_formula)
+    new_parsed_formula = replace_array_access(new_parsed_formula)
+    print("\naccess modified: " + print_tree_to_sygus(new_parsed_formula))
+    return new_parsed_formula

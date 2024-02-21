@@ -1,1 +1,0 @@
-(and (= u_x u_c) (k_wellFormed u_heap))

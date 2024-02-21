@@ -1,0 +1,102 @@
+(set-logic ALL)
+
+(declare-var myseq (Seq Int))
+
+(declare-datatype MaybeBool (
+    (empty)
+    (mkMaybeBool (getValue Bool))
+))
+
+(declare-datatype BoundedArray (
+    (nil)
+    (mkBoundedArray (getLength Int)(getArray (Array Int Bool)))
+))
+
+(define-fun isValidIndex
+    ((boundedArray BoundedArray) (index Int))
+    Bool
+    (and (>= index 0) (< index (getLength boundedArray)))
+)
+
+(define-fun sameLength
+    ((a BoundedArray) (b BoundedArray))
+    Bool
+    (= (getLength a) (getLength b))
+)
+
+(define-fun storeInArray 
+    ((boundedArray BoundedArray) (index Int) (data Bool))
+    BoundedArray
+    (ite (isValidIndex boundedArray index)
+        (mkBoundedArray (getLength boundedArray)(store (getArray boundedArray) index data))
+        nil
+    )
+)
+
+(define-fun selectFromArray 
+    ((boundedArray BoundedArray) (index Int))
+    MaybeBool
+    (ite (isValidIndex boundedArray index)
+        (mkMaybeBool (select (getArray boundedArray) index))
+        empty
+    )
+)
+
+;(synth-fun sameLength ((a BoundedArray) (b BoundedArray)) Bool)
+;(declare-var x BoundedArray)
+;(declare-var y BoundedArray)
+;(constraint (= (sameLength x y) (= (getLength x) (getLength y))))
+
+
+;GOAL
+;(define-fun toggleArrayAt ((arr BoundedArray) (index Int)) BoundedArray 
+;    (storeInArray a i (not (getValue (selectFromArray a i))))
+;)
+(synth-fun toggleArrayAt ((arr BoundedArray) (index Int)) BoundedArray)
+(declare-var a BoundedArray)
+(declare-var b BoundedArray)
+(declare-var i Int)
+(constraint
+    (=> 
+        (and
+            (isValidIndex a i)
+            (= b (toggleArrayAt a i))
+        ) 
+        (and
+            (= 
+                (getValue (selectFromArray b i))
+                (not (getValue (selectFromArray a i)))
+            )
+            (forall ((j Int)) (=>
+                (and (isValidIndex a j) (not (= i j)))
+                (= 
+                    (getValue (selectFromArray b i))
+                    (getValue (selectFromArray a i))
+                )
+            ))
+        )
+    )
+)
+
+;GOAL
+;(define-fun toggleArray ((arr BoundedArray)) BoundedArray 
+;    (???)
+;)
+;(synth-fun toggleArray ((arr BoundedArray)) BoundedArray)
+;(constraint (forall ((index Int) (barray_in BoundedArray) (barray_out BoundedArray)) (=>
+;    (and
+;        (isValidIndex barray_in index)
+;        (= barray_out (toggleArray barray_in))
+;    )
+;    (and
+;        (sameLength barray_in barray_out)        
+;        (not (= 
+;            (getValue (selectFromArray barray_in index))
+;            (getValue (selectFromArray barray_out index))
+;        ))
+;    )
+;)))
+
+(check-synth)
+
+;summe über array berechnen CorC-Beispiel, nur Rumpf! syn vs ganze schleife syn
