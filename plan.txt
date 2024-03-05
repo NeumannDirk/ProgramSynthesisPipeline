@@ -1,0 +1,33 @@
+Was ist noch zu tun:
+
+Implementieren:
+- Heuristic an KeY übergeben
+- Java Übersetzung fertig stellen und testen
+- herausfinden ob man nicht doch Makros hinzufügen kann ohne die Grammatik kaputt zu machen (Email an cvc5?)
+- Eval laufen lassen (min 1 h)
+- Schreiben der Änderungen zurück nach CorC für Evaluation
+===============================================
+Umfang: min 1,5 Woche fehlerfreies Programmieren ohne Debugging
+
+
+Schreiben:
+- Konzept und Grundlagenfertig stellen, ca 4++ Seiten  (min. 2 Tage)
+- Implementation, ca. 15 Seiten + Diagramme erstellen (min. 1 Woche)
+- Evaluation + Discussion ca. 12 Seiten  (min. 1 Woche, sehr ungenau weil pipeline nicht fertig)
+- Related Work´, ca 3 Seiten (2 Tage)
+  - SyGuS in anderen Gebieten
+  - CbC
+  - Synthese
+- Conclusion + Absttract (1 Tag)
+===============================================
+Umfang: 22 Seiten bisher + 35 Seiten = ~60 Seiten
+Zeit: ~min! 3 Wochen Schreiben (inkl Zeit für kleinere Korrekturen)
+
+
+Ergebnisse di ich heute vorstellen will:
+- Stand der pipeline
+  - für Arrays "quasi" fertig automatisiert
+  - Kann man "k_null" vernachlässigen? -> Ich denke schon (Wrapper machen Synthese sehr langsam
+  - Welche Auswrikungen haben verschieden Logiken? -> Eher kleine, so scheint es
+  - Kann man SMT zu Java komplett von woanders übernehmen? NEIN!
+  - Kann man Array-Veränderungen als Macros auslagern, ja aber dann geht der Rest kaputt

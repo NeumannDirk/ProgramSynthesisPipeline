@@ -1,0 +1,42 @@
+(set-logic ALL)
+
+(declare-datatype Tuple ((empty) (mkTuple (getField0 Int) (getField1 (Seq Int)))))
+(declare-datatype MySeq ((empty) (mkmyseq (getSeq (Seq Int)))))
+
+(declare-var i_preCon Int)
+(declare-var A_preCon Int)
+(declare-var i_postCon Int)
+(declare-var A_postCon Int)
+
+(define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
+(= 
+    (seq.unit 5)
+    (seq.at A_preCon i_preCon)
+))
+
+(define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
+(= 
+    (seq.unit 6)
+    (seq.at A_postCon i_postCon)
+))
+
+(synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple)
+
+
+(declare-var i_in Int)
+(declare-var A_in (Seq Int))
+(declare-var i_out Int)
+(declare-var A_out (Seq Int))
+
+(constraint (forall ((i_in Int) (i_out Int) (A_in (Seq Int)) (A_out (Seq Int))) (=>
+	(and
+		(preCondition i_in A_in)
+		(= i_out (getField0 (targetFunction i_in A_in)))
+		(= A_out (getField1 (targetFunction i_in A_in)))
+	)
+	(and
+		(postCondition i_out A_out)
+		(= i_in i_out)
+	)
+)))
+(check-synth)

@@ -8,6 +8,8 @@
 (declare-var i_postCon Int)
 (declare-var A_postCon Int)
 
+;(define-fun foo ((i_preCon Int) (val Int) (A_preCon (Seq Int))) Bool (seq.update A_preCon i_preCon val))
+
 (define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
 (= 
     (seq.unit 5)
@@ -16,8 +18,8 @@
 
 (define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
 (= 
-    (seq.unit 6)
-    (seq.at A_postCon i_postCon)
+    (seq.unit 5)
+    (seq.at A_postCon (+ i_postCon 1))
 ))
 
 (synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple)
@@ -36,8 +38,7 @@
 	)
 	(and
 		(postCondition i_out A_out)
-		(= i_in i_out)
+		(= A_in A_out)
 	)
 )))
 (check-synth)
-;23.02. - 15 Uhr

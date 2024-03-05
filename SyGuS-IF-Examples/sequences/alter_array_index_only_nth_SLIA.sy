@@ -9,16 +9,18 @@
 (declare-var A_postCon Int)
 
 (define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
+(and (and (> (seq.len A_preCon) i_preCon) (<= 0 i_preCon))
 (= 
-    (seq.unit 5)
-    (seq.at A_preCon i_preCon)
-))
+    5
+    (seq.nth A_preCon i_preCon)
+)))
 
 (define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
+(and (and (> (seq.len A_postCon) (+ i_postCon 1)) (<= 0 (+ i_postCon 1)))
 (= 
-    (seq.unit 5)
-    (seq.at A_postCon (+ i_postCon 1))
-))
+    5
+    (seq.nth A_postCon (+ i_postCon 1))
+)))
 
 (synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple)
 

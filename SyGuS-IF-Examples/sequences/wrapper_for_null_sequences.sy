@@ -1,0 +1,45 @@
+;using an Optional<T> for Sequences to enable null-values increases the time to solve a problem significantly 
+(set-logic ALL)
+
+(declare-datatype MySeq ((empty) (mkmyseq (getSeq (Seq Int)))))
+(declare-datatype Tuple ((empty) (mkTuple (getField0 Int) (getField1 MySeq))))
+
+(declare-var i_preCon Int)
+(declare-var A_preCon MySeq)
+(declare-var i_postCon Int)
+(declare-var A_postCon MySeq)
+
+(define-fun preCondition ((i_preCon Int) (A_preCon MySeq)) Bool 
+(and (and (> (seq.len (getSeq A_preCon)) i_preCon) (<= 0 i_preCon))
+(= 
+    5
+    (seq.nth (getSeq A_preCon) i_preCon)
+)))
+
+(define-fun postCondition ((i_postCon Int) (A_postCon MySeq)) Bool 
+(and (and (> (seq.len (getSeq A_postCon)) (+ i_postCon 1)) (<= 0 (+ i_postCon 1)))
+(= 
+    5
+    (seq.nth (getSeq A_postCon) (+ i_postCon 1))
+)))
+
+(synth-fun targetFunction ((i Int) (A MySeq)) Tuple)
+
+
+(declare-var i_in Int)
+(declare-var A_in MySeq)
+(declare-var i_out Int)
+(declare-var A_out MySeq)
+
+(constraint (forall ((i_in Int) (i_out Int) (A_in MySeq) (A_out MySeq)) (=>
+	(and
+		(preCondition i_in A_in)
+		(= i_out (getField0 (targetFunction i_in A_in)))
+		(= A_out (getField1 (targetFunction i_in A_in)))
+	)
+	(and
+		(postCondition i_out A_out)
+		(= A_in A_out)
+	)
+)))
+(check-synth)

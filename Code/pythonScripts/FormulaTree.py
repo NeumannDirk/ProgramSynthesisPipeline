@@ -230,3 +230,32 @@ def replace_array_access(formula):
     else:
         newArgs = [replace_array_access(arg) for arg in formula.arguments]
         return Formula(function_name=formula.function_name, arguments=newArgs)
+
+
+def remove_null_check(formula):
+    if isinstance(formula, AtomicArgument):
+        return AtomicArgument(formula.value)
+
+    if (
+        formula.function_name == "k_select"
+        and len(formula.arguments) == 3
+        and isinstance(formula.arguments[0], AtomicArgument)
+        and isinstance(formula.arguments[1], AtomicArgument)
+        and isinstance(formula.arguments[2], Formula)
+    ):
+        arr_acc: Formula = formula.arguments[2]
+        if (
+            arr_acc.function_name == "arr"
+            and len(arr_acc.arguments) == 1
+            and isinstance(arr_acc.arguments[0], AtomicArgument)
+        ):
+            return Formula(
+                function_name="seq.nth",
+                arguments=[
+                    AtomicArgument(value=formula.arguments[1].value),
+                    AtomicArgument(value=arr_acc.arguments[0].value),
+                ],
+            )
+    else:
+        newArgs = [replace_array_access(arg) for arg in formula.arguments]
+        return Formula(function_name=formula.function_name, arguments=newArgs)

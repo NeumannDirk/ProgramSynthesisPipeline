@@ -1,0 +1,25 @@
+(set-logic ALL)
+
+(define-fun prodPlusSum ((x Int) (y Int)) Int 
+(+ (* x y) x y
+))
+
+;(define-fun myfun ((a Int) (b Int)) Int (+ a (+ a (* b (+ a (+ 1 1))))))
+
+(synth-fun myfun ((a Int) (b Int)) Int
+    ((Start Int))
+    ((Start Int (a b 0 1 
+    (prodPlusSum Start Start) 
+    (* Start Start)
+    ;(+ Start Start)
+    (- Start Start)
+    )))
+)
+
+(declare-var c Int)
+(declare-var d Int)
+
+(constraint (= (myfun c d) (+ (* c d) c c d d)))
+
+(check-synth)
+

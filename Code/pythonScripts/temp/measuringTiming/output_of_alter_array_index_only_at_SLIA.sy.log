@@ -1,0 +1,3 @@
+(
+(define-fun targetFunction ((i Int) (A (Seq Int))) Tuple (mkTuple (- i 1) A))
+)
