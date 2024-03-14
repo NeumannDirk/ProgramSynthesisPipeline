@@ -1,0 +1,53 @@
+(set-logic SLIA)
+
+(declare-datatype Tuple ((mkTuple (getField0 Int) (getField1 (Seq Int)))))
+
+(declare-var i_preCon Int)
+(declare-var A_preCon Int)
+(declare-var i_postCon Int)
+(declare-var A_postCon Int)
+
+(define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
+(= 
+    5
+    (seq.nth A_preCon i_preCon)
+))
+
+(define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
+(= 
+    6
+    (seq.nth A_postCon i_postCon)
+))
+
+(define-fun seqUpdate ((s (Seq Int)) (i Int) (val Int)) (Seq Int)
+    (seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))
+)
+
+(synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple)
+
+(declare-var index Int)
+(declare-var value Int)
+(declare-var arr (Seq Int))
+(constraint (forall ((index Int) (value Int) (arr (Seq Int))) 
+(=
+(seqUpdate arr index value)
+(seq.++ (seq.extract arr 0 index) (seq.unit value) (seq.extract arr (+ index 1) (- (seq.len arr) index 1)))
+)))
+
+(declare-var i_in Int)
+(declare-var A_in (Seq Int))
+(declare-var i_out Int)
+(declare-var A_out (Seq Int))
+
+(constraint (forall ((i_in Int) (i_out Int) (A_in (Seq Int)) (A_out (Seq Int))) (=>
+	(and
+		(preCondition i_in A_in)
+		(= i_out (getField0 (targetFunction i_in A_in)))
+		(= A_out (getField1 (targetFunction i_in A_in)))
+	)
+	(and
+		(postCondition i_out A_out)
+		(= i_in i_out)
+	)
+)))
+(check-synth)
