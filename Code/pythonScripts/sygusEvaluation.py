@@ -8,9 +8,9 @@ from exeSygusPipeLine import execute_sygus_pipeline
 def main():
     src_dir = "D:\\evalData_noPredicates\\diagrams\\"
     projectsToEvaluate = [
-        "maxElement",
+        # "maxElement",
         # "LinearSearch",
-        # "DutchFlag",
+        "DutchFlag",
         # "Exponentation",
         # "FactorialGraphical",
         # "Logarithm",

@@ -94,11 +94,12 @@ arguments: ((NAME | NUMBER | BOOL | CREATED | start) (WS (NAME | NUMBER | BOOL |
 CREATED: "|field_java.lang.Object::<created>|"
 NUMBER: /[0-9]+/
 BOOL: "true" | "false"
+NAME: /[a-zA-Z_.][a-zA-Z0-9_.]*/
 
-%import common.CNAME -> NAME
 %import common.WS
 %ignore WS
 """
+# %import common.CNAME -> NAME
 
 
 def parse_smt_to_tree(smt_text):
