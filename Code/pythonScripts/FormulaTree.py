@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+# from abc import ABC, abstractmethod
 from lark import Lark, Tree, Token
 
 
-class AbstractArgument(ABC):
+class AbstractArgument:
     pass
 
 
@@ -103,38 +103,50 @@ def delete_unary_wrapper(formula, wrapper_to_delete):
         return Formula(formula.function_name, newArgs)
 
 
-def delete_function(formula, function_to_delete):
+def delete_function(formula, function_to_delete, bool_literal_to_replace: str):
     if isinstance(formula, AtomicArgument):
         return AtomicArgument(formula.value)
 
     if formula.function_name == function_to_delete:
-        return None
+        return AtomicArgument(value=bool_literal_to_replace)
     else:
         newArgs = []
         for arg in formula.arguments:
-            newArg = delete_function(arg, function_to_delete)
+            newArg = delete_function(arg, function_to_delete, bool_literal_to_replace)
             if newArg != None:
                 newArgs.append(newArg)
         return Formula(formula.function_name, newArgs)
 
 
-def simplify_and(formula):
+def simplify_and_or(formula):
     if isinstance(formula, AtomicArgument):
         return AtomicArgument(formula.value)
 
-    if formula.function_name == "and" and len(formula.arguments) == 1:
+    if (formula.function_name in ["and", "or"]) and len(formula.arguments) == 1:
         if isinstance(formula.arguments[0], AtomicArgument):
             return AtomicArgument(formula.arguments[0].value)
         else:
-            return simplify_and(formula.arguments[0])
+            return simplify_and_or(formula.arguments[0])
     else:
-        newArgs = [
-            simplify_and(
-                arg,
-            )
-            for arg in formula.arguments
-        ]
+        newArgs = [simplify_and_or(arg) for arg in formula.arguments]
         return Formula(formula.function_name, newArgs)
+
+
+def flatten_and_or(formula):
+    if isinstance(formula, AtomicArgument):
+        return AtomicArgument(formula.value)
+
+    if formula.function_name in ["and", "or"]:
+        flattened_args = []
+        for arg in formula.arguments:
+            if isinstance(arg, Formula) and arg.function_name == formula.function_name:
+                flattened_args.extend(flatten_and_or(arg).arguments)
+            else:
+                flattened_args.append(flatten_and_or(arg))
+        return Formula(function_name=formula.function_name, arguments=flattened_args)
+    else:
+        new_args = [flatten_and_or(arg) for arg in formula.arguments]
+        return Formula(function_name=formula.function_name, arguments=new_args)
 
 
 def remove_cast(formula, unneeded_cast):
@@ -175,32 +187,24 @@ def simplify_created(formula):
     return simplify_created_rec(new_parsed_formula)
 
 
+# we start with something like this:
+# (= (cast (k_select u_heap u_A |field_java.lang.Object::<created>|) sort_boolean) true)
+# make sure that (cast XXX sort_boolean) is already deleted
+# (= (k_select u_heap u_A |field_java.lang.Object::<created>|) true)
 def simplify_created_rec(formula):
     if isinstance(formula, AtomicArgument):
         return AtomicArgument(formula.value)
 
     if (
-        formula.function_name == "="
-        and len(formula.arguments) == 2
-        # and isinstance(formula.arguments[1], AtomicArgument)
-        # and formula.arguments[1].value == "true"
-        and isinstance(formula.arguments[0], Formula)
-        and formula.arguments[0].function_name == "k_select"
+        formula.function_name == "k_select"
+        and len(formula.arguments) == 3
+        and isinstance((created := formula.arguments[2]), AtomicArgument)
+        and created.value == "|field_java.lang.Object::<created>|"
     ):
-        k_select_formula: Formula = formula.arguments[0]
-        if (
-            len(k_select_formula.arguments) == 3
-            # and isinstance(k_select_formula.arguments[0], AtomicArgument)
-            # and k_select_formula.arguments[0].value == "u_heap"
-            and isinstance(k_select_formula.arguments[2], AtomicArgument)
-            and k_select_formula.arguments[2].value
-            == "|field_java.lang.Object::<created>|"
-        ):
-            return None
+        return AtomicArgument(value="true")
     else:
         newArgs = [simplify_created_rec(arg) for arg in formula.arguments]
-        noneNoneNewArgs = [x for x in newArgs if x is not None]
-        return Formula(formula.function_name, noneNoneNewArgs)
+        return Formula(formula.function_name, newArgs)
 
 
 def replace_array_access(formula):
@@ -237,25 +241,12 @@ def remove_null_check(formula):
         return AtomicArgument(formula.value)
 
     if (
-        formula.function_name == "k_select"
-        and len(formula.arguments) == 3
-        and isinstance(formula.arguments[0], AtomicArgument)
-        and isinstance(formula.arguments[1], AtomicArgument)
-        and isinstance(formula.arguments[2], Formula)
+        formula.function_name == "="
+        and len(formula.arguments) == 2
+        and isinstance((arg_null := formula.arguments[1]), AtomicArgument)
+        and arg_null.value == "k_null"
     ):
-        arr_acc: Formula = formula.arguments[2]
-        if (
-            arr_acc.function_name == "arr"
-            and len(arr_acc.arguments) == 1
-            and isinstance(arr_acc.arguments[0], AtomicArgument)
-        ):
-            return Formula(
-                function_name="seq.nth",
-                arguments=[
-                    AtomicArgument(value=formula.arguments[1].value),
-                    AtomicArgument(value=arr_acc.arguments[0].value),
-                ],
-            )
+        return AtomicArgument(value="false")
     else:
-        newArgs = [replace_array_access(arg) for arg in formula.arguments]
+        newArgs = [remove_null_check(arg) for arg in formula.arguments]
         return Formula(function_name=formula.function_name, arguments=newArgs)

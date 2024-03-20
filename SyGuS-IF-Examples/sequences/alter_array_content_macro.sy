@@ -1,7 +1,6 @@
 (set-logic ALL)
 
-(declare-datatype Tuple ((empty) (mkTuple (getField0 Int) (getField1 (Seq Int)))))
-(declare-datatype MySeq ((empty) (mkmyseq (getSeq (Seq Int)))))
+(declare-datatype Tuple ((mkTuple (getField0 Int) (getField1 (Seq Int)))))
 
 (declare-var i_preCon Int)
 (declare-var A_preCon Int)
@@ -24,17 +23,7 @@
     (seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))
 )
 
-(synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple
-    ((Start Tuple)(StartSeq (Seq Int)) (StartInt Int))
-    (
-        (Start Tuple ())
-        (StartSeq (Seq Int) (
-            (seqUpdate StartSeq StartInt StartInt)
-        ))
-        (StartInt Int ())
-    )
-    
-)
+(synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple)
 
 
 (declare-var i_in Int)

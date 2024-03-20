@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:de.tu-bs.cs.isf.cbc.cbcmodel="http://www.example.org/cbcmodel">
+  <de.tu-bs.cs.isf.cbc.cbcmodel:CbCFormula name="LinearSearch" proven="true" comment="">
+    <statement name="statement" id="588877e2-24cd-4784-ad14-f8e330b4e135">
+      <refinement xsi:type="de.tu-bs.cs.isf.cbc.cbcmodel:CompositionStatement" name="compositionStatement" proven="true" id="70f4d1f3-c80a-4558-853f-699db80d8ab5">
+        <firstStatement name="statement1" id="da7985d8-ed3c-4a78-ac58-b214cad3093e">
+          <refinement name="i = A.length-1;" proven="true" id="49e58b54-816f-4524-8597-947ef5377b07">
+            <postCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x)) &amp; i = A.length-1">
+              <modifiables>i</modifiables>
+            </postCondition>
+            <preCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x))"/>
+          </refinement>
+          <postCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x)) &amp; i = A.length-1">
+            <modifiables>i</modifiables>
+          </postCondition>
+          <preCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x))"/>
+        </firstStatement>
+        <secondStatement name="statement2" id="02a21f95-a1a3-46ec-b81e-d194a7634bca">
+          <refinement xsi:type="de.tu-bs.cs.isf.cbc.cbcmodel:SmallRepetitionStatement" name="repetitionStatement" proven="true" id="44cbb6bd-1777-4715-b358-9aa16630a026" variantProven="true" preProven="true" postProven="true">
+            <postCondition name="A[i] = x">
+              <modifiables>i</modifiables>
+            </postCondition>
+            <preCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x)) &amp; i = A.length-1">
+              <modifiables>i</modifiables>
+            </preCondition>
+            <loopStatement name="loop" id="bd49622a-e3d6-4159-94ce-f0fb5b1b6855">
+              <refinement name="i = i-1;" proven="true" id="432c68bb-e8b1-4f1a-a964-4811a12821dd" codeRepresentation="i = i-1;&#xA;">
+                <postCondition name="!(\exists int q; (q >= i+1 &amp; q &lt; A.length &amp; A[q]=x))">
+                  <modifiables>i</modifiables>
+                </postCondition>
+                <preCondition name="(!(\exists int q; (q >= i+1 &amp; q &lt; A.length &amp; A[q]=x))) &amp; (A[i] != x)">
+                  <modifiables>i</modifiables>
+                </preCondition>
+              </refinement>
+              <postCondition name="!(\exists int q; (q >= i+1 &amp; q &lt; A.length &amp; A[q]=x))">
+                <modifiables>i</modifiables>
+              </postCondition>
+              <preCondition name="(!(\exists int q; (q >= i+1 &amp; q &lt; A.length &amp; A[q]=x))) &amp; (A[i] != x)">
+                <modifiables>i</modifiables>
+              </preCondition>
+            </loopStatement>
+            <variant name="i"/>
+            <invariant name="!(\exists int q; (q >= i+1 &amp; q &lt; A.length &amp; A[q]=x))"/>
+            <guard name="A[i] != x"/>
+          </refinement>
+          <postCondition name="A[i] = x">
+            <modifiables>i</modifiables>
+          </postCondition>
+          <preCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x)) &amp; i = A.length-1">
+            <modifiables>i</modifiables>
+          </preCondition>
+        </secondStatement>
+        <intermediateCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x)) &amp; i = A.length-1">
+          <modifiables>i</modifiables>
+        </intermediateCondition>
+      </refinement>
+      <postCondition name="A[i] = x">
+        <modifiables>i</modifiables>
+      </postCondition>
+      <preCondition name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x))"/>
+    </statement>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:CbCFormula>
+  <de.tu-bs.cs.isf.cbc.cbcmodel:JavaVariables>
+    <variables name="int i"/>
+    <variables name="int x"/>
+    <variables name="int[] A"/>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:JavaVariables>
+  <de.tu-bs.cs.isf.cbc.cbcmodel:GlobalConditions>
+    <conditions name="A != null"/>
+    <conditions name="A.length > 0"/>
+    <conditions name="A.length &lt; 10"/>
+    <conditions name="i >= 0 &amp; i &lt; A.length"/>
+    <conditions name="(\exists int q; (q >= 0 &amp; q &lt; A.length &amp; A[q]=x))"/>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:GlobalConditions>
+</xmi:XMI>

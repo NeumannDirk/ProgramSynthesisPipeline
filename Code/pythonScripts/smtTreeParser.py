@@ -6,11 +6,13 @@ from FormulaTree import (
     parse_tree,
     delete_unary_wrapper,
     delete_function,
-    simplify_and,
+    simplify_and_or,
     remove_cast,
     replace_fn_name,
     simplify_created,
     replace_array_access,
+    remove_null_check,
+    flatten_and_or,
 )
 from FormulaTree import Formula, AtomicArgument
 
@@ -110,15 +112,16 @@ def parse_smt_to_tree(smt_text):
 
 def cleanup_tree_from_smt(parsed_formula):
 
-    print("start: " + print_tree_to_sygus(parsed_formula))
+    # print("start: " + print_tree_to_sygus(parsed_formula))
     new_parsed_formula = delete_unary_wrapper(parsed_formula, "i2u")
     new_parsed_formula = delete_unary_wrapper(new_parsed_formula, "u2i")
     new_parsed_formula = delete_unary_wrapper(new_parsed_formula, "b2u")
     new_parsed_formula = delete_unary_wrapper(new_parsed_formula, "u2b")
-    new_parsed_formula = delete_function(new_parsed_formula, "k_wellFormed")
+    new_parsed_formula = delete_function(new_parsed_formula, "k_wellFormed", "true")
     # print("deleting wrappers...")
     # print("done" + print_tree_to_sygus(new_parsed_formula))
     new_parsed_formula = remove_cast(new_parsed_formula, "sort_int")
+    new_parsed_formula = remove_cast(new_parsed_formula, "sort_boolean")
     # print("after: " + print_tree_to_sygus(new_parsed_formula))
     # new_parsed_formula = simplify_created(new_parsed_formula)
     # print("after: " + print_tree_to_sygus(new_parsed_formula))
@@ -128,7 +131,9 @@ def cleanup_tree_from_smt(parsed_formula):
     # print("after: " + print_tree_to_sygus(new_parsed_formula))
     # print("simplified0: " + print_tree_to_sygus(new_parsed_formula))
     new_parsed_formula = simplify_created(new_parsed_formula)
-    new_parsed_formula = simplify_and(new_parsed_formula)
+    new_parsed_formula = simplify_and_or(new_parsed_formula)
     new_parsed_formula = replace_array_access(new_parsed_formula)
-    print("\naccess modified: " + print_tree_to_sygus(new_parsed_formula))
+    new_parsed_formula = remove_null_check(new_parsed_formula)
+    new_parsed_formula = simplify_and_or(new_parsed_formula)
+    new_parsed_formula = flatten_and_or(new_parsed_formula)
     return new_parsed_formula

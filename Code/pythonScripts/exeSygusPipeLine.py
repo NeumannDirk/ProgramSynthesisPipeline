@@ -7,6 +7,9 @@ from Cvc5Runner import run_cvc5
 import shutil
 from FormulaTree import *
 import os
+import time
+from pprint import pprint
+from translateToJava import translate_synthesized_code_to_java
 
 # corc_problem_folder = "D:\\workspaces\\runtime-EclipseApplication\\de.tu_bs.cs.isf.corc.examples\\src\\diagrams\\"
 # corc_name = "maxElement"
@@ -33,23 +36,28 @@ def setup_synthesis_structure(info, project_folder, temp_folder):
 
 
 def execute_sygus_pipeline(info):
+    info["timestamps"].append(time.time())
 
     # setup folder structure
-    project_folder = info["src_file"] + "prove" + info["project"] + "\\"
+    project_folder = info["src_dir"] + "prove" + info["project"] + "\\"
     temp_folder = project_folder + "temp_" + info["statement_file"] + "\\"
     setup_synthesis_structure(
         info=info, project_folder=project_folder, temp_folder=temp_folder
     )
+    info["timestamps"].append(time.time())
 
     # split problem into pre and post condition
     split_out_pre = temp_folder + info["statement_file"] + "_pre_gen.key"
     split_out_post = temp_folder + info["statement_file"] + "_post_gen.key"
     split_problem_definition(info["statement_path"], split_out_pre, split_out_post)
+    info["timestamps"].append(time.time())
 
     # run KeY to translate to SMT
-    key_file = "key-2.13.0-exe.jar"
+    key_file = ".\\pythonScripts\\key-2.13.0-exe.jar"
     run_key(key_file, split_out_pre, temp_folder)
+    info["timestamps"].append(time.time())
     run_key(key_file, split_out_post, temp_folder)
+    info["timestamps"].append(time.time())
 
     # Parse SMT conditions to Tree
     key_out_suffix = "_goal_0.smt2"
@@ -67,32 +75,49 @@ def execute_sygus_pipeline(info):
     # Get variable from cbcmodel
     variables = read_vars_from_corc_model(info["cbcmodel_path"], info["cbc_id"])
 
-    print("Variables: " + str(variables))
-    print("pre: " + parsed_pre_cond)
-    print("post: " + parsed_post_cond)
+    pprint(variables)
 
-    # Generate Sygus Problem
-    sygus_problem = generate_sygus_problem(variables, parsed_pre_cond, parsed_post_cond)
-    # print("\nSyGuS Problem:\n" + sygus_problem)
+    for i, (name, mod, type) in enumerate(variables):
+        if name not in info["modifiable"]:
+            variables[i] = (name, False, type)
 
-    sygus_file = "sygus_gen.sy"
-    with open(temp_folder + sygus_file, "w") as output_file:
-        output_file.write(sygus_problem)
+    pprint(variables)
 
-    # Execute cvc5
-    # print("\nSyGuS Result:\n" + sygus_problem)
-    run_cvc5(temp_folder + sygus_file, temp_folder + sygus_output_file)
+    if any([m for (n, m, t) in variables]):
 
-    with open(temp_folder + sygus_output_file, "r") as synthesized_code_file:
-        target_function = synthesized_code_file.read()
-    print("long: " + target_function)
-    synthesized_method_body = extract_synthesized_method_body(target_function)
-    print("short: " + synthesized_method_body)
+        # print("Variables: " + str(variables))
+        # print("pre: " + parsed_pre_cond)
+        # print("post: " + parsed_post_cond)
+        info["timestamps"].append(time.time())
 
-    code_tree = parse_smt_to_tree(synthesized_method_body)
-    print(code_tree.toString())
-    target_string = print_tree_to_sygus(code_tree)
-    print(target_string)
+        # Generate Sygus Problem
+        sygus_problem = generate_sygus_problem(
+            variables, [parsed_pre_cond], [parsed_post_cond]
+        )
+        # print("\nSyGuS Problem:\n" + sygus_problem)
+        info["timestamps"].append(time.time())
+
+        sygus_file = "sygus_gen.sy"
+        with open(temp_folder + sygus_file, "w") as output_file:
+            output_file.write(sygus_problem)
+
+        # Execute cvc5
+        # print("\nSyGuS Result:\n" + sygus_problem)
+        info["timestamps"].append(time.time())
+        run_cvc5(temp_folder + sygus_file, temp_folder + sygus_output_file)
+        info["timestamps"].append(time.time())
+
+        java_codeblock = translate_synthesized_code_to_java(
+            synthesized_code_path=temp_folder + sygus_output_file,
+            variable_modifiability_dict=variables,
+        )
+        info["timestamps"].append(time.time())
+        print(info["statement_path"], "   result: ", java_codeblock)
+        print("time: ", [t - info["timestamps"][0] for t in info["timestamps"]])
+    else:
+        print(info["statement_path"], "   result: ", ";")
+        print("time: ", [t - info["timestamps"][0] for t in info["timestamps"]])
+    return
 
 
 def extract_synthesized_method_body(input_string):

@@ -1,5 +1,6 @@
 import subprocess
 
+
 def run_key(key_file, input_file, output_folder):
     java_command = [
         "java",
@@ -8,6 +9,14 @@ def run_key(key_file, input_file, output_folder):
         "--auto",
         "--openGoalsSmtPath",
         output_folder,
-        input_file
+        input_file,
     ]
-    result = subprocess.run(java_command, stdout=subprocess.PIPE, text=True, shell=True)
+    print(" ".join(java_command))
+    try:
+        result = subprocess.run(java_command, shell=True, check=True)
+        # Access result.returncode or other information if needed
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        # Handle the case where the command returns a non-zero exit code
+        print(f"Error: {e}")
+        return e.returncode

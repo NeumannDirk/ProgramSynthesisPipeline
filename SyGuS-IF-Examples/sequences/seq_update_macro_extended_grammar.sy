@@ -1,0 +1,88 @@
+(set-logic ALL)
+
+(declare-datatype Tuple ((mkTuple (getField0 Int) (getField1 (Seq Int)))))
+
+(declare-var i_preCon Int)
+(declare-var A_preCon Int)
+(declare-var i_postCon Int)
+(declare-var A_postCon Int)
+
+(define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
+(= 
+    5
+    (seq.nth A_preCon i_preCon)
+))
+
+(define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
+(= 
+    6
+    (seq.nth A_postCon i_postCon)
+))
+
+(define-fun seqUpdate ((s (Seq Int)) (i Int) (val Int)) (Seq Int)
+    (seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))
+)
+
+(declare-var index Int)
+(declare-var value Int)
+(declare-var arr (Seq Int))
+(assume (forall ((index Int) (value Int) (arr (Seq Int))) 
+(=
+(seqUpdate arr index value)
+(seq.++ (seq.extract arr 0 index) (seq.unit value) (seq.extract arr (+ index 1) (- (seq.len arr) index 1)))
+)))
+
+
+(declare-var alter_at Int)
+(declare-var check_at Int)
+(declare-var set_value Int)
+(declare-var arr_in (Seq Int))
+(declare-var arr_out (Seq Int))
+(assume (forall ((alter_at Int) (check_at Int) (set_value Int) (arr_in (Seq Int)) (arr_out (Seq Int))) 
+(=>
+	(and
+		(<= 0 alter_at)
+		(< alter_at (seq.len arr_in))
+		(<= 0 check_at)
+		(< check_at (seq.len arr_in))
+		(= arr_out (seqUpdate arr_in alter_at set_value))
+	)
+	(and
+		(= (seq.len arr_in) (seq.len arr_out))
+		(=> 
+			(= check_at alter_at) 
+			(= set_value (seq.nth arr_out check_at))
+		)
+		(=> 
+			(not (= check_at alter_at)) 
+			(= (seq.nth arr_in check_at) (seq.nth arr_out check_at))
+		)
+	)
+)))
+
+(synth-fun targetFunction ((i Int) (A (Seq Int))) Tuple
+((A_Tuple Tuple) (A_Int Int) (A_Seq_336 (Seq Int)) (A_Bool Bool))
+(
+	(A_Tuple Tuple ((mkTuple A_Int A_Seq_336) (ite A_Bool A_Tuple A_Tuple)))
+	(A_Int Int (i 5 6 0 1 (+ A_Int A_Int) (- A_Int A_Int) (str.len A_Seq_336) (getField0 A_Tuple) (ite A_Bool A_Int A_Int)))
+	(A_Seq_336 (Seq Int) (A (as seq.empty (Seq Int)) (str.++ A_Seq_336 A_Seq_336) (seq.unit A_Int) (getField1 A_Tuple) (ite A_Bool A_Seq_336 A_Seq_336) (seqUpdate A_Seq_336 A_Int A_Int)))
+	(A_Bool Bool (true false (= A_Int A_Int) (<= A_Int A_Int) (= A_Seq_336 A_Seq_336) (= A_Tuple A_Tuple) ((_ is mkTuple) A_Tuple) (not A_Bool) (and A_Bool A_Bool) (or A_Bool A_Bool)))
+))
+
+(declare-var i_in Int)
+(declare-var A_in (Seq Int))
+(declare-var i_out Int)
+(declare-var A_out (Seq Int))
+
+(constraint (forall ((i_in Int) (i_out Int) (A_in (Seq Int)) (A_out (Seq Int))) (=>
+	(and
+		(preCondition i_in A_in)
+		(= i_out (getField0 (targetFunction i_in A_in)))
+		(= A_out (getField1 (targetFunction i_in A_in)))
+	)
+	(and
+		(postCondition i_out A_out)
+		(= i_in i_out)
+	)
+)))
+(check-synth)
