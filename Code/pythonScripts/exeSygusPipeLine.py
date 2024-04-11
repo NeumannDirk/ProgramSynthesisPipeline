@@ -49,7 +49,7 @@ def execute_sygus_pipeline(info):
     # split problem into pre and post condition
     split_out_pre = temp_folder + info["statement_file"] + "_pre_gen.key"
     split_out_post = temp_folder + info["statement_file"] + "_post_gen.key"
-    split_problem_definition(info["statement_path"], split_out_pre, split_out_post)
+    split_problem_definition(info, split_out_pre, split_out_post)
     info["timestamps"].append(time.time())
 
     # run KeY to translate to SMT

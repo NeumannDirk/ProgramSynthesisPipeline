@@ -28,7 +28,7 @@ def toJava(tree: AbstractArgument) -> str:
             return seq_unit(formula)
         elif formula.function_name == "seq.++":
             return seq_concat(formula)
-        elif formula.function_name == "str.len":
+        elif formula.function_name in ["seq.len", "str.len"]:
             return seq_len(formula)
         elif formula.function_name == "seq.nth":
             return seq_nth(formula)

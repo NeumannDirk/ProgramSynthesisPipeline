@@ -13,9 +13,8 @@ def extract_post_condition(problem_text):
     return result_wo_whitespaces
 
 
-def split_problem_definition(input_filename, output_pre_filename, output_post_filename):
-
-    with open(input_filename, "r") as input_file:
+def split_problem_definition(info, output_pre_filename, output_post_filename):
+    with open(info["statement_path"], "r") as input_file:
         input_content = input_file.read()
 
     input_content = input_content.split("\\proof {")[0]
