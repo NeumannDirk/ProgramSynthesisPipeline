@@ -96,7 +96,9 @@ def generate_sygus_problem_old(variables, preconditions, postconditions, grammar
     return output
 
 
-def generate_sygus_problem(variables, preconditions, postconditions, grammar=None):
+def generate_sygus_problem(
+    variables, preconditions, postconditions, loopVariantVar=None, grammar=None
+):
     mod_vars = [(_n, _mod, _t) for (_n, _mod, _t) in variables if _mod]
     con_vars = [(_n, _mod, _t) for (_n, _mod, _t) in variables if not _mod]
 
@@ -112,6 +114,8 @@ def generate_sygus_problem(variables, preconditions, postconditions, grammar=Non
     for var in variables:
         output += f"(declare-var {var[0]}_preCon {datatype_mapping_dict[var[2]]})\n"
         output += f"(declare-var {var[0]}_postCon {datatype_mapping_dict[var[2]]})\n"
+    if loopVariantVar:
+        output += f"(declare-var {loopVariantVar} Int)\n"
     output += "\n"
 
     # Precondition and postcondition definitions
@@ -129,15 +133,19 @@ def generate_sygus_problem(variables, preconditions, postconditions, grammar=Non
     output += " ".join(
         [f"({var[0]}_preCon {datatype_mapping_dict[var[2]]})" for var in variables]
     )
+    if loopVariantVar:
+        output += f" ({loopVariantVar} Int)"
     output += ") Bool "
-    output += f"(and {edited_precondition}))\n\n"  # TODO: Change variable names inside preconditions
+    output += f"(and {edited_precondition}))\n\n"
 
     output += "(define-fun postCondition ("
     output += " ".join(
         [f"({var[0]}_postCon {datatype_mapping_dict[var[2]]})" for var in variables]
     )
+    if loopVariantVar:
+        output += f" ({loopVariantVar} Int)"
     output += ") Bool "
-    output += f"(and {edited_postcondition}))\n\n"  # TODO: Change variable names inside postconditions
+    output += f"(and {edited_postcondition}))\n\n"
 
     # Synth-fun targetFunction definition
     output += "(synth-fun targetFunction ("
@@ -162,6 +170,9 @@ def generate_sygus_problem(variables, preconditions, postconditions, grammar=Non
     for var in mod_vars:
         output += f" ({var[0]}_out {datatype_mapping_dict[var[2]]})"
 
+    if loopVariantVar:
+        output += f" ({loopVariantVar} Int)"
+
     # output += " ".join(
     #    [
     #        f"({var[0]}_in {datatype_mapping_dict[var[2]]}) ({var[0]}_out {datatype_mapping_dict[var[2]]})"
@@ -172,6 +183,8 @@ def generate_sygus_problem(variables, preconditions, postconditions, grammar=Non
     output += ") "
     output += "(=>\n\t(and\n\t\t(preCondition "
     output += " ".join([f"{var[0]}_in" for var in variables])
+    if loopVariantVar:
+        output += f" {loopVariantVar}"
     output += ")"
 
     target_func_call = (
@@ -188,6 +201,8 @@ def generate_sygus_problem(variables, preconditions, postconditions, grammar=Non
         else:
             output += f" {_n}_in"
     # output += " ".join([f"{_n}{"_out" if _m else "_in"}" for (_n, _m, _) in variables])
+    if loopVariantVar:
+        output += f" {loopVariantVar}"
     output += ")"
 
     # for var in variables:

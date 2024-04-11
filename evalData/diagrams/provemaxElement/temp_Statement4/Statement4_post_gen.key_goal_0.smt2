@@ -42,10 +42,10 @@
 (declare-fun fieldIdentifier (U) Int)
 (declare-fun u_i () U)
 (declare-fun cast (U T) U)
+(declare-const sort_Field T)
 (declare-const sort_Heap T)
 (declare-const |sort_int[]| T)
-(declare-const sort_Field T)
-(assert (distinct sort_Heap |sort_int[]| sort_boolean sort_Field sort_int))
+(assert (distinct sort_Field sort_boolean sort_Heap |sort_int[]| sort_int))
 
 ; --- Axioms
 

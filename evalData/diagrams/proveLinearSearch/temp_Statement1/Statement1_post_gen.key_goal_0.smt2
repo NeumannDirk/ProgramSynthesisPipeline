@@ -43,11 +43,11 @@
 (declare-fun cast (U T) U)
 (declare-fun u_x () U)
 (declare-fun u_i () U)
-(declare-const sort_java.lang.Object T)
 (declare-const sort_Heap T)
-(declare-const sort_Field T)
+(declare-const sort_java.lang.Object T)
 (declare-const |sort_int[]| T)
-(assert (distinct sort_java.lang.Object sort_Heap sort_Field sort_boolean sort_int |sort_int[]|))
+(declare-const sort_Field T)
+(assert (distinct sort_boolean sort_Heap sort_java.lang.Object sort_int |sort_int[]| sort_Field))
 
 ; --- Axioms
 

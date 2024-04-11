@@ -39,7 +39,7 @@
 (declare-fun u_i () U)
 (declare-const |sort_int[]| T)
 (declare-const sort_java.lang.Object T)
-(assert (distinct |sort_int[]| sort_java.lang.Object sort_boolean sort_int))
+(assert (distinct |sort_int[]| sort_java.lang.Object sort_int sort_boolean))
 
 ; --- Axioms
 

@@ -42,10 +42,13 @@
 (declare-fun fieldIdentifier (U) Int)
 (declare-fun u_i () U)
 (declare-fun cast (U T) U)
-(declare-const |sort_int[]| T)
-(declare-const sort_Heap T)
+(declare-fun u_variantVar0 () U)
+(declare-fun k_length (U) U)
 (declare-const sort_Field T)
-(assert (distinct sort_boolean |sort_int[]| sort_Heap sort_Field sort_int))
+(declare-const sort_Heap T)
+(declare-const |sort_int[]| T)
+(declare-const sort_java.lang.Object T)
+(assert (distinct sort_int sort_Field sort_Heap |sort_int[]| sort_boolean sort_java.lang.Object))
 
 ; --- Axioms
 
@@ -78,8 +81,12 @@
 (assert (forall ((x U) (t T)) (! (subtype (typeof (cast x t)) t) :pattern ((cast x t)))))
 (assert (forall ((x U) (t T)) (! (=> (subtype (typeof x) t) (= (cast x t) x)) :pattern ((cast x t)))))
     
+(assert (instanceof u_variantVar0 sort_int))
+(assert (forall ((var_0 U)) (! (instanceof (k_length var_0) sort_int) :pattern ((k_length var_0)))))
+(assert (forall ((var_o U)) (=> (instanceof var_o sort_java.lang.Object) (>= (u2i (k_length var_o)) 0))))
+(assert (subtype |sort_int[]| sort_java.lang.Object))
 
 ; --- Sequent
-(assert (not (forall ((var_q Int)) (or (not (and (>= var_q 0) (< var_q (u2i u_j)))) (>= (u2i (cast (k_select u_heap u_A (arr u_i)) sort_int)) (u2i (cast (k_select u_heap u_A (arr (i2u var_q))) sort_int)))))))
+(assert (not (and (forall ((var_q Int)) (or (not (and (>= var_q 0) (< var_q (u2i u_j)))) (>= (u2i (cast (k_select u_heap u_A (arr u_i)) sort_int)) (u2i (cast (k_select u_heap u_A (arr (i2u var_q))) sort_int))))) (> (u2i u_variantVar0) (- (u2i (k_length u_A)) (u2i u_j))))))
 
 (check-sat)

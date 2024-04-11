@@ -9,8 +9,8 @@ def main():
     src_dir = "D:\\evalData_noPredicates\\diagrams\\"
     projectsToEvaluate = [
         # "maxElement",
-        # "LinearSearch",
-        "DutchFlag",
+        "LinearSearch",
+        # "DutchFlag",
         # "Exponentation",
         # "FactorialGraphical",
         # "Logarithm",
@@ -19,6 +19,8 @@ def main():
         src_dir=src_dir, projectsToEvaluate=projectsToEvaluate
     )
     for id, val in task_dict.items():
+        if not val["isLoopUpdate"]:
+            continue
         # print("id: ", id)
         # print("file: ", val["statement_path"])
         # print("modi: ", val["modifiable"])
@@ -47,13 +49,18 @@ def collect_files_for_evaluation(src_dir, projectsToEvaluate):
                 statement_filename
             ):
                 cbc_id = get_id_from_key_file(full_path=statement_full_path)
-                modifiable_list = get_modifiable_from_key_file(
+                modifiable_list = get_mutable_from_key_file(
                     full_path=statement_full_path
+                )
+                isLoopUpdate = bool(
+                    get_isLoopUpdate_from_key_file(full_path=statement_full_path)
                 )
                 if cbc_id is None:
                     print("Error: No cbc_id for file ", statement_full_path)
                 if modifiable_list is None:
-                    print("Error: No modifiable for file ", statement_full_path)
+                    print("Error: No mutable for file ", statement_full_path)
+                if isLoopUpdate is None:
+                    print("Error: No isLoopUpdate for file ", statement_full_path)
 
                 task_dict[task_id] = {
                     "src_dir": src_dir,
@@ -63,6 +70,7 @@ def collect_files_for_evaluation(src_dir, projectsToEvaluate):
                     "cbcmodel_path": cbcmodel_full_path,
                     "cbc_id": cbc_id,
                     "modifiable": modifiable_list,
+                    "isLoopUpdate": isLoopUpdate,
                     "result": None,
                     "timestamps": [],
                 }
@@ -89,15 +97,36 @@ def get_id_from_key_file(full_path: str) -> str:
             pass
 
 
-def get_modifiable_from_key_file(full_path: str) -> str:
+def get_mutable_from_key_file(full_path: str) -> str:
     with open(full_path, "r") as file:
         file_content = file.read()
-        pattern = r"//modifiable:\{([0-9a-zA-Z-,]+)\}"
-        pattern = r"\/\/modifiable:\s*\{([^}]*)\}"
+        pattern = r"//mutable:\{([0-9a-zA-Z-,]+)\}"
+        pattern = r"\/\/mutable:\s*\{([^}]*)\}"
         match = re.search(pattern, file_content)
         if match:
             # print("Found Statement ID:", statement_id)
             return [x.strip() for x in match.group(1).split(",")]
+        else:
+            # print("Statement ID not found in the file.")
+            pass
+
+
+def get_isLoopUpdate_from_key_file(full_path: str) -> str:
+    with open(full_path, "r") as file:
+        file_content = file.read()
+        # pattern = r"//isLoopUpdate:\{{(true|false)}\};"
+        # pattern = r"(?<=:){(true|false)};"
+        # pattern = r"\/\/isLoopUpdate:\s*\{{(true|false)}\}"
+        # match = re.search(pattern, file_content)
+        if r"//isLoopUpdate:{false}" in file_content:
+            return False
+
+        if r"//isLoopUpdate:{true}" in file_content:
+            return True
+
+        # if match:
+        # print("Found Statement ID:", statement_id)
+        #    return match.group(1)
         else:
             # print("Statement ID not found in the file.")
             pass

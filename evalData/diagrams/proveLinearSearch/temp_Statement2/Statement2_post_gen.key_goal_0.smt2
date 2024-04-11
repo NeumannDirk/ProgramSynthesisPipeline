@@ -34,13 +34,21 @@
 (declare-fun i2u (Int) U)
 (declare-const sort_int T)
     
+(declare-fun u_i () U)
 (declare-fun u_A () U)
 (declare-fun k_length (U) U)
-(declare-fun u_i () U)
-(declare-fun u_j () U)
-(declare-const sort_java.lang.Object T)
+(declare-fun k_select (U U U) U)
+(declare-fun u_heap () U)
+(declare-fun arr (U) U)
+(declare-fun fieldIdentifier (U) Int)
+(declare-fun cast (U T) U)
+(declare-fun u_x () U)
+(declare-fun u_variantVar0 () U)
 (declare-const |sort_int[]| T)
-(assert (distinct sort_java.lang.Object sort_int |sort_int[]| sort_boolean))
+(declare-const sort_Field T)
+(declare-const sort_java.lang.Object T)
+(declare-const sort_Heap T)
+(assert (distinct |sort_int[]| sort_Field sort_int sort_boolean sort_java.lang.Object sort_Heap))
 
 ; --- Axioms
 
@@ -59,14 +67,26 @@
 ; (assert (forall ((x U)) (! (=> (instanceof x sort_int)  (= (typeof x ) sort_int)) :pattern ((instanceof x sort_int)))))
 (assert (forall ((i Int)) (! (= (typeof (i2u i)) sort_int) :pattern ((i2u i)))))
     
+(assert (instanceof u_i sort_int))
 (assert (instanceof u_A |sort_int[]|))
 (assert (forall ((var_0 U)) (! (instanceof (k_length var_0) sort_int) :pattern ((k_length var_0)))))
 (assert (forall ((var_o U)) (=> (instanceof var_o sort_java.lang.Object) (>= (u2i (k_length var_o)) 0))))
-(assert (instanceof u_i sort_int))
-(assert (instanceof u_j sort_int))
+(assert (instanceof u_heap sort_Heap))
+
+        (assert (forall ((u U)) (!
+            (=> (>= (u2i u) 0) (= (fieldIdentifier (arr u)) (u2i u)))
+            :pattern ((arr u)))))
+        (assert (forall ((u U)) (! (exactinstanceof (arr u) sort_Field) :pattern ((arr u)))) )
+    
+
+(assert (forall ((x U) (t T)) (! (subtype (typeof (cast x t)) t) :pattern ((cast x t)))))
+(assert (forall ((x U) (t T)) (! (=> (subtype (typeof x) t) (= (cast x t) x)) :pattern ((cast x t)))))
+    
+(assert (instanceof u_x sort_int))
+(assert (instanceof u_variantVar0 sort_int))
 (assert (subtype |sort_int[]| sort_java.lang.Object))
 
 ; --- Sequent
-(assert (not (and (and (> (u2i (k_length u_A)) 0) (= u_i (i2u 0))) (= u_j (i2u 1)))))
+(assert (not (and (not (exists ((var_q Int)) (and (and (>= var_q (+ (u2i u_i) 1)) (< var_q (u2i (k_length u_A)))) (= (cast (k_select u_heap u_A (arr (i2u var_q))) sort_int) u_x)))) (> (u2i u_variantVar0) (u2i u_i)))))
 
 (check-sat)

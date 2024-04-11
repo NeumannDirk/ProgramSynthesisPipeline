@@ -90,9 +90,19 @@ def execute_sygus_pipeline(info):
         # print("post: " + parsed_post_cond)
         info["timestamps"].append(time.time())
 
+        loopVariantVar = None
+        if info["isLoopUpdate"]:
+            pattern = r"variantVar\d+"
+            matches = re.findall(pattern, parsed_pre_cond)
+            print(matches)
+            loopVariantVar = matches[0]
+
         # Generate Sygus Problem
         sygus_problem = generate_sygus_problem(
-            variables, [parsed_pre_cond], [parsed_post_cond]
+            variables,
+            [parsed_pre_cond],
+            [parsed_post_cond],
+            loopVariantVar=loopVariantVar,
         )
         # print("\nSyGuS Problem:\n" + sygus_problem)
         info["timestamps"].append(time.time())
