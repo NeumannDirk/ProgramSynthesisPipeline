@@ -6,8 +6,19 @@ def toJava(tree: AbstractArgument) -> str:
         return arg.value
     elif isinstance((formula := tree), Formula):
         # int
-        if formula.function_name in ["+", "-", "*"]:
+        if formula.function_name in ["+", "*"]:
             return simpleBracketJoin(formula)
+        elif formula.function_name == "-":
+            return negation_or_difference(formula)
+        elif formula.function_name == "mod":
+            return int_div(formula)
+        elif formula.function_name == "div":
+            return int_mod(formula)
+        elif formula.function_name == "abs":
+            return int_abs(formula)
+        # comparing ints
+        elif formula.function_name in ["<", ">", "<=", ">=", "="]:
+            return simple_inline(formula)
         # bool
         elif formula.function_name == "not":
             return bool_not(formula)
@@ -17,9 +28,6 @@ def toJava(tree: AbstractArgument) -> str:
             return bool_or(formula)
         elif formula.function_name == "->":
             return bool_impl(formula)
-        # comparing ints
-        elif formula.function_name in ["<", ">", "<=", ">=", "="]:
-            return simple_inline(formula)
         # general
         elif formula.function_name == "ite":
             return ternaryOperator(formula)
@@ -40,6 +48,28 @@ def toJava(tree: AbstractArgument) -> str:
 
 def simpleBracketJoin(formula: Formula) -> str:
     return formula.function_name.join([f"({toJava(arg)})" for arg in formula.arguments])
+
+
+def negation_or_difference(formula: Formula) -> str:
+    if len(formula.arguments) == 1:
+        return "-(" + toJava(formula.arguments[0]) + ")"
+    elif len(formula.arguments) == 2:
+        return f"({toJava(formula.arguments[0])}) - ({toJava(formula.arguments[1])})"
+    else:
+        raise ValueError("Minus should not have more than two arguments!")
+
+
+def int_div(formula: Formula) -> str:
+    return f"({toJava(formula.arguments[0])}) / ({toJava(formula.arguments[1])})"
+
+
+def int_mod(formula: Formula) -> str:
+    return f"({toJava(formula.arguments[0])}) % ({toJava(formula.arguments[1])})"
+
+
+def int_abs(formula: Formula) -> str:
+    val: str = toJava(formula.arguments[0])
+    return f"(({val}) < 0) ? -({val}) ! ({val})"
 
 
 def ternaryOperator(formula: Formula) -> str:
@@ -120,7 +150,7 @@ def seq_unit(formula: Formula) -> str:
 
 
 def seq_update(formula: Formula) -> str:
-    return "ArrayUtils.addAll(ArrayUtils.subarray({0}, 0, {1}), new int[]{{{2}}},ArrayUtils.subarray({0}, ({1})+1, ({0}).length))".format(
+    return "arrayUpdate({0}, {1}, {2})".format(
         toJava(formula.arguments[0]),
         toJava(formula.arguments[1]),
         toJava(formula.arguments[2]),
