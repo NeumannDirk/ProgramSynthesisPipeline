@@ -1,0 +1,36 @@
+s(A,wb,wt,bb)
+
+(\forall int q; ((q >= 0 & q < wb) -> A[q]=0)) 
+& (\forall int q; ((q >= wb & q < wt) -> A[q]=1)) 
+& (\forall int q; ((q >= bb & q < A.length) -> A[q]=2)) 
+& 0<=wb & wb<=wt & wt<=bb & bb<=A.length
+
+======================================================================================
+
+s(A, wb, wt, bb) & wt = bb
+
+(\forall int q; ((q >= 0 & q < wb) -> A[q]=0)) 
+& (\forall int q; ((q >= wb & q < wt) -> A[q]=1)) 
+& (\forall int q; ((q >= bb & q < A.length) -> A[q]=2)) 
+& 0<=wb & wb<=wt & wt<=bb & bb<=A.length & wt = bb
+
+======================================================================================
+
+s(A, 0, 0, A.length)
+
+(\forall int q; ((q >= 0 & q < 0) -> A[q]=0)) 
+& (\forall int q; ((q >= 0 & q < 0) -> A[q]=1)) 
+& (\forall int q; ((q >= A.length & q < A.length) -> A[q]=2)) 
+& 0<=0 & 0<=0 & 0<=A.length & A.length<=A.length
+
+======================================================================================
+
+s(A, wb, wt, bb)
+
+(\forall int q; ((q >= 0 & q < wb) -> A[q]=0)) 
+& (\forall int q; ((q >= wb & q < wt) -> A[q]=1)) 
+& (\forall int q; ((q >= bb & q < A.length) -> A[q]=2)) 
+& 0<=wb & wb<=wt & wt<=bb & bb<=A.length
+
+======================================================================================
+

@@ -89,7 +89,7 @@ start: "(" function_name? arguments ")"
 
 arguments: ((NAME | NUMBER | BOOL | CREATED | start) (WS (NAME | NUMBER | BOOL | CREATED | start))*)?
 
-!function_name: NAME | "=" | "=<>=" | "+" | "-" | "!=" | "!" | "<" | ">" | "<=" | ">=" | "$" | "%" | "=>"
+!function_name: NAME | "=" | "=<>=" | "+" | "*" | "-" | "!=" | "!" | "<" | ">" | "<=" | ">=" | "$" | "%" | "=>"
 
 CREATED: "|field_java.lang.Object::<created>|"
 NUMBER: /[0-9]+/

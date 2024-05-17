@@ -8,16 +8,18 @@
 (declare-var A_postCon Int)
 
 (define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
-(= 
-    5
-    (seq.nth A_preCon i_preCon)
-))
+(and 
+	(= 5 (seq.nth A_preCon i_preCon))
+	(not (= A_preCon (as seq.empty (Seq Int))))
+)
+)
 
 (define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
-(= 
-    6
-    (seq.nth A_postCon i_postCon)
-))
+(and 
+	(= 6 (seq.nth A_postCon i_postCon))
+	(not (= A_postCon (as seq.empty (Seq Int))))
+)
+)
 
 (define-fun seqUpdate ((s (Seq Int)) (i Int) (val Int)) (Seq Int)
     (seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))

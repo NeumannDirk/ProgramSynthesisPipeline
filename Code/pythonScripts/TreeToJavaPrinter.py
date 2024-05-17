@@ -3,7 +3,8 @@ from FormulaTree import AbstractArgument, Formula, AtomicArgument
 
 def toJava(tree: AbstractArgument) -> str:
     if isinstance((arg := tree), AtomicArgument):
-        return arg.value
+        x = str(arg.value)
+        return x
     elif isinstance((formula := tree), Formula):
         # int
         if formula.function_name in ["+", "*"]:
@@ -130,9 +131,8 @@ def seq_at(formula: Formula) -> str:
 
 
 def seq_len(formula: Formula) -> str:
-    return "({0}).length".format(
-        {toJava(formula.arguments[0])},
-    )
+    res = "(" + toJava(formula.arguments[0]) + ").length"
+    return res
 
 
 def seq_concat(formula: Formula) -> str:

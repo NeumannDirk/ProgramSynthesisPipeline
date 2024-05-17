@@ -1,0 +1,50 @@
+(set-logic ALL)
+
+(declare-var i_preCon Int)
+(declare-var A_preCon Int)
+(declare-var i_postCon Int)
+(declare-var A_postCon Int)
+
+(define-fun preCondition ((i_preCon Int) (A_preCon (Seq Int))) Bool 
+	(and
+		(not (= A_preCon (as seq.empty (Seq Int))))
+		(< i_preCon (seq.len A_preCon))
+		(= 5 (seq.nth A_preCon i_preCon))
+	)
+)
+
+(define-fun postCondition ((i_postCon Int) (A_postCon (Seq Int))) Bool 
+	(= 6 (seq.nth A_postCon i_postCon))
+)
+
+(define-fun seqUpdate ((s (Seq Int)) (i Int) (val Int)) (Seq Int)
+	;(ite
+		;(and (not (= s (as seq.empty (Seq Int)))) (< 0 i) (< i (seq.len s)))
+		;(seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))
+		(seq.update s i (seq.unit val))
+		;(as seq.empty (Seq Int))
+	;)
+)
+
+(synth-fun targetFunction ((i Int) (A (Seq Int))) (Seq Int)
+((A_Seq_315 (Seq Int)) (A_Bool Bool) (A_Int Int) )
+(
+	(A_Seq_315 (Seq Int) (A (as seq.empty (Seq Int)) (str.++ A_Seq_315 A_Seq_315) (seq.unit A_Int) (ite A_Bool A_Seq_315 A_Seq_315) (seqUpdate A_Seq_315 A_Int A_Int)))
+	(A_Bool Bool (true false (= A_Int A_Int) (<= A_Int A_Int) (= A_Seq_315 A_Seq_315) (not A_Bool) (and A_Bool A_Bool) (or A_Bool A_Bool)))
+	(A_Int Int (i 5 6 0 1 (+ A_Int A_Int) (- A_Int A_Int) (str.len A_Seq_315) (ite A_Bool A_Int A_Int)))
+))
+
+(declare-var i_in Int)
+(declare-var A_in (Seq Int))
+(declare-var A_out (Seq Int))
+
+(constraint (forall ((i_in Int) (A_in (Seq Int)) (A_out (Seq Int))) (=>
+	(and
+		(preCondition i_in A_in)
+		(= A_out (targetFunction i_in A_in))
+	)
+	(and
+		(postCondition i_in A_out)
+	)
+)))
+(check-synth)

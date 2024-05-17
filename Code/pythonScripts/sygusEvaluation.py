@@ -3,35 +3,38 @@ import re
 from pprint import pprint
 from tqdm import tqdm
 from exeSygusPipeLine import execute_sygus_pipeline
+from evalTiming import eval_timing
 
 
 def main():
     src_dir = "D:\\evalData_noPredicates\\diagrams\\"
     projectsToEvaluate = [
-        # "maxElement",
-        "LinearSearch",
-        # "DutchFlag",
+        # "maxElement",  # 1,2,3,5
+        # "LinearSearch",  # all
+        # "DutchFlag",  # 1,3
         # "Exponentation",
         # "FactorialGraphical",
         # "Logarithm",
+        # "SizeLimitStudy",
     ]
     task_dict = collect_files_for_evaluation(
         src_dir=src_dir, projectsToEvaluate=projectsToEvaluate
     )
     for id, val in task_dict.items():
-        if not val["isLoopUpdate"]:
+        x = int(val["statement_file"][-1])
+        if val["project"] == "maxElement" and x in [1, 2, 3, 5]:
             continue
-        # print("id: ", id)
-        # print("file: ", val["statement_path"])
-        # print("modi: ", val["modifiable"])
-        # print("")
-        # pprint(val)
-        execute_sygus_pipeline(val)
-        pass
+        if val["project"] == "LinearSearch" and x in [2]:
+            continue
+        if val["project"] == "DutchFlag" and x in [1, 3]:
+            continue
+        synthesis_needed = True
+        for counter in range(10):
+            val["temp_number"] = str(counter)
+            synthesis_needed = execute_sygus_pipeline(val)
+        eval_timing(val)
 
     pass
-    # print("Task-Dict:")
-    # pprint(task_dict)
 
 
 def collect_files_for_evaluation(src_dir, projectsToEvaluate):

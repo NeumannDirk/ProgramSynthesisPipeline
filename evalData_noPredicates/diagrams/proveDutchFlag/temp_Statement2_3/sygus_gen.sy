@@ -1,0 +1,44 @@
+(set-logic ALL)
+(declare-datatype Tuple ((empty) (mkTuple (getField0 (Seq Int))(getField1 Int)(getField2 Int)(getField3 Int))))
+
+(declare-var A_preCon (Seq Int))
+(declare-var A_postCon (Seq Int))
+(declare-var t_preCon Int)
+(declare-var t_postCon Int)
+(declare-var wt_preCon Int)
+(declare-var wt_postCon Int)
+(declare-var wb_preCon Int)
+(declare-var wb_postCon Int)
+(declare-var bb_preCon Int)
+(declare-var bb_postCon Int)
+(declare-var variantVar0 Int)
+
+(define-fun preCondition ((A_preCon (Seq Int)) (t_preCon Int) (wt_preCon Int) (wb_preCon Int) (bb_preCon Int) (variantVar0 Int)) Bool (and (and (forall ( (var_q Int)) (=> (and (>= var_q 0) (< var_q wb_preCon)) (= (seq.nth A_preCon var_q) 0))) (forall ( (var_q Int)) (=> (and (>= var_q wb_preCon) (< var_q wt_preCon)) (= (seq.nth A_preCon var_q) 1))) (forall ( (var_q Int)) (=> (and (>= var_q bb_preCon) (< var_q (seq.len A_preCon))) (= (seq.nth A_preCon var_q) 2))) (<= 0 wb_preCon) (<= wb_preCon wt_preCon) (<= wt_preCon bb_preCon) (<= bb_preCon (seq.len A_preCon)) (not (= wt_preCon bb_preCon)) (= (seq.nth A_preCon wt_preCon) 0) (= variantVar0 (- bb_preCon wt_preCon)) (not false) (> (seq.len A_preCon) 0) (<= 0 wb_preCon) (<= wb_preCon wt_preCon) (<= wt_preCon bb_preCon) (<= bb_preCon (seq.len A_preCon)) (forall ( (var_i Int)) (=> (and (>= var_i 0) (< var_i (seq.len A_preCon))) (or (= (seq.nth A_preCon var_i) 0) (= (seq.nth A_preCon var_i) 1) (= (seq.nth A_preCon var_i) 2)))) (= true true) true)))
+
+(define-fun postCondition ((A_postCon (Seq Int)) (t_postCon Int) (wt_postCon Int) (wb_postCon Int) (bb_postCon Int) (variantVar0 Int)) Bool (and (and (forall ( (var_q Int)) (=> (and (>= var_q 0) (< var_q wb_postCon)) (= (seq.nth A_postCon var_q) 0))) (forall ( (var_q Int)) (=> (and (>= var_q wb_postCon) (< var_q wt_postCon)) (= (seq.nth A_postCon var_q) 1))) (forall ( (var_q Int)) (=> (and (>= var_q bb_postCon) (< var_q (seq.len A_postCon))) (= (seq.nth A_postCon var_q) 2))) (<= 0 wb_postCon) (<= wb_postCon wt_postCon) (<= wt_postCon bb_postCon) (<= bb_postCon (seq.len A_postCon)) (> variantVar0 (- bb_postCon wt_postCon)))))
+
+(synth-fun targetFunction ((A (Seq Int)) (t Int) (wt Int) (wb Int) (bb Int)) Tuple)
+
+(declare-var A_in (Seq Int))
+(declare-var t_in Int)
+(declare-var wt_in Int)
+(declare-var wb_in Int)
+(declare-var bb_in Int)
+(declare-var A_out (Seq Int))
+(declare-var wt_out Int)
+(declare-var wb_out Int)
+(declare-var bb_out Int)
+
+(constraint (forall ((A_in (Seq Int)) (t_in Int) (wt_in Int) (wb_in Int) (bb_in Int) (A_out (Seq Int)) (wt_out Int) (wb_out Int) (bb_out Int) (variantVar0 Int)) (=>
+	(and
+		(preCondition A_in t_in wt_in wb_in bb_in variantVar0)
+		(= A_out (getField0 (targetFunction A_in t_in wt_in wb_in bb_in)))
+		(= wt_out (getField1 (targetFunction A_in t_in wt_in wb_in bb_in)))
+		(= wb_out (getField2 (targetFunction A_in t_in wt_in wb_in bb_in)))
+		(= bb_out (getField3 (targetFunction A_in t_in wt_in wb_in bb_in)))
+	)
+	(and
+		(postCondition A_out t_in wt_out wb_out bb_out variantVar0)
+	)
+)))
+(check-synth)

@@ -1,0 +1,1 @@
+int i_preVersion = i; i = (i_preVersion) - (1); 

@@ -1,0 +1,23 @@
+(set-logic ALL)
+
+(define-fun bounded_add ((a Int) (b Int)) Int
+    (- (mod (+ (+ a b) 2147483648) 4294967296) 2147483648)
+)
+
+(define-fun bound ((m Int)) Int
+    (- (mod (+ m 2147483648) 4294967296) 2147483648)
+)
+
+(synth-fun max ((a Int)) Int
+    ((Start Int))
+    ((Start Int (
+        0 1 2 3 4 a 2147483647
+		(- Start)
+        (bounded_add Start Start)
+    )))
+)
+
+(declare-var x Int)
+(constraint (= (bound (* (max x) (max x))) 4)) 
+
+(check-synth)

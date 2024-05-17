@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ASCII"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:de.tu-bs.cs.isf.cbc.cbcmodel="http://www.example.org/cbcmodel">
+  <de.tu-bs.cs.isf.cbc.cbcmodel:JavaVariables>
+    <variables/>
+    <variables name="int a"/>
+    <variables name="int b"/>
+    <variables name="int c"/>
+    <variables name="int x"/>
+    <variables name="int y"/>
+    <variables name="int z"/>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:JavaVariables>
+  <de.tu-bs.cs.isf.cbc.cbcmodel:CbCFormula name="SizeLimitStudy" comment="">
+    <statement name="statement" id="bf3f0c20-73c0-41c1-8b64-560194afe61f">
+      <refinement name="???" id="b7ea6204-c70f-43d6-8a13-187a27af0ec6">
+        <postCondition name="x = a + b &amp; y = 2*c &amp; z = 2*a">
+          <modifiables>x</modifiables>
+          <modifiables>y</modifiables>
+          <modifiables>z</modifiables>
+        </postCondition>
+        <preCondition name="x = a &amp; y = b &amp; z = c"/>
+      </refinement>
+      <postCondition name="x = a + b &amp; y = 2*c &amp; z = 2*a">
+        <modifiables>x</modifiables>
+        <modifiables>y</modifiables>
+        <modifiables>z</modifiables>
+      </postCondition>
+      <preCondition name="x = a &amp; y = b &amp; z = c"/>
+    </statement>
+  </de.tu-bs.cs.isf.cbc.cbcmodel:CbCFormula>
+</xmi:XMI>

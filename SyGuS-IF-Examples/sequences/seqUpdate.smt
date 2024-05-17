@@ -1,7 +1,8 @@
 (set-logic SLIA)
 
 (define-fun seqUpdate ((s (Seq Int)) (i Int) (val Int)) (Seq Int)
-    (seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))
+    ;(seq.++ (seq.extract s 0 i) (seq.unit val) (seq.extract s (+ i 1) (- (seq.len s) i 1)))
+	(seq.update s i (seq.unit val))
 )
 
 ;(declare-const index Int)
@@ -18,7 +19,7 @@
 (declare-const set_value Int)
 (declare-const arr_in (Seq Int))
 (declare-const arr_out (Seq Int))
-(assert (forall ((alter_at Int) (check_at Int) (set_value Int) (arr_in (Seq Int)) (arr_out (Seq Int))) 
+(assert (not (forall ((alter_at Int) (check_at Int) (set_value Int) (arr_in (Seq Int)) (arr_out (Seq Int))) 
 (=>
 	(and
 		;not empty sequence
@@ -43,6 +44,6 @@
 			(= (seq.nth arr_in check_at) (seq.nth arr_out check_at))
 		)
 	)
-)))
+))))
 (check-sat)
 (get-model)

@@ -1,0 +1,3 @@
+['start', 'setup', 'split', 'key_pre', 'key_post', 'smt_pre', 'smt_post', 'read_vars', 'gen_sygus', 'start_synth', 'end_synth', 'java']
+[0, 1, 2, 7226, 14822, 15177, 15302, 15303, 15303, 15303, 15432, 15432]
+[1, 1, 7224, 7596, 355, 125, 1, 0, 0, 129, 0]

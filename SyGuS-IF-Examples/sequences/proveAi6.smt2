@@ -34,7 +34,7 @@
 (declare-const A_in (Seq Int))
 (declare-const A_out (Seq Int))
 
-(assert (not (forall ((i_in Int) (A_in (Seq Int)) (A_out (Seq Int))) (=>
+(assert (not (forall ((i_in Int) (A_in (Seq Int)) (A_out (Seq Int))) (and
 	(and
 		(preCondition i_in A_in)
 		(= A_out (getField0 (targetFunction i_in A_in)))

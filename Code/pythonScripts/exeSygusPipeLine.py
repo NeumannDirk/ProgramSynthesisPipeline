@@ -21,6 +21,21 @@ from translateToJava import translate_synthesized_code_to_java
 
 sygus_output_file = "synthesizedCode.txt"
 
+time_measure_points = [
+    "start",
+    "setup",
+    "split",
+    "key_pre",
+    "key_post",
+    "smt_pre",
+    "smt_post",
+    "read_vars",
+    "gen_sygus",
+    "start_synth",
+    "end_synth",
+    "java",
+]
+
 
 def setup_synthesis_structure(info, project_folder, temp_folder):
     # create temp folder
@@ -36,11 +51,19 @@ def setup_synthesis_structure(info, project_folder, temp_folder):
 
 
 def execute_sygus_pipeline(info):
+    info["timestamps"] = []
     info["timestamps"].append(time.time())
 
     # setup folder structure
     project_folder = info["src_dir"] + "prove" + info["project"] + "\\"
-    temp_folder = project_folder + "temp_" + info["statement_file"] + "\\"
+    temp_folder = (
+        project_folder
+        + "temp_"
+        + info["statement_file"]
+        + "_"
+        + info["temp_number"]
+        + "\\"
+    )
     setup_synthesis_structure(
         info=info, project_folder=project_folder, temp_folder=temp_folder
     )
@@ -66,29 +89,30 @@ def execute_sygus_pipeline(info):
     pre_cond_formula_tree = parse_smt_to_tree(smt_pre_cond)
     pre_cond_formula_tree = cleanup_tree_from_smt(pre_cond_formula_tree)
     parsed_pre_cond = print_tree_to_sygus(pre_cond_formula_tree).replace("u_", "")
+    info["timestamps"].append(time.time())
 
     smt_post_cond = cut_smt_assertion_from_file(split_out_post + key_out_suffix)
     post_cond_formula_tree = parse_smt_to_tree(smt_post_cond)
     post_cond_formula_tree = cleanup_tree_from_smt(post_cond_formula_tree)
     parsed_post_cond = print_tree_to_sygus(post_cond_formula_tree).replace("u_", "")
+    info["timestamps"].append(time.time())
 
     # Get variable from cbcmodel
     variables = read_vars_from_corc_model(info["cbcmodel_path"], info["cbc_id"])
+    info["timestamps"].append(time.time())
 
-    pprint(variables)
+    # pprint(variables)
 
     for i, (name, mod, type) in enumerate(variables):
-        if name not in info["modifiable"]:
-            variables[i] = (name, False, type)
+        variables[i] = (name, name in info["modifiable"], type)
 
-    pprint(variables)
+    # pprint(variables)
 
     if any([m for (n, m, t) in variables]):
 
         # print("Variables: " + str(variables))
         # print("pre: " + parsed_pre_cond)
         # print("post: " + parsed_post_cond)
-        info["timestamps"].append(time.time())
 
         loopVariantVar = None
         if info["isLoopUpdate"]:
@@ -114,7 +138,9 @@ def execute_sygus_pipeline(info):
         # Execute cvc5
         # print("\nSyGuS Result:\n" + sygus_problem)
         info["timestamps"].append(time.time())
+        print("Start Sygus")
         run_cvc5(temp_folder + sygus_file, temp_folder + sygus_output_file)
+        print("End Sygus")
         info["timestamps"].append(time.time())
 
         java_codeblock = translate_synthesized_code_to_java(
@@ -124,10 +150,36 @@ def execute_sygus_pipeline(info):
         info["timestamps"].append(time.time())
         print(info["statement_path"], "   result: ", java_codeblock)
         print("time: ", [t - info["timestamps"][0] for t in info["timestamps"]])
+
+        java_file = "javaCode.txt"
+        with open(temp_folder + java_file, "w") as output_file:
+            output_file.write(java_codeblock)
+
+        time_file = "times.txt"
+        times_in_msec = [round(1000 * t) for t in info["timestamps"]]
+        times = [round(t - times_in_msec[0]) for t in times_in_msec]
+        differences = [round(times[i + 1] - times[i]) for i in range(len(times) - 1)]
+        with open(temp_folder + time_file, "w") as output_file:
+            output_file.write(
+                str(time_measure_points) + "\n" + str(times) + "\n" + str(differences)
+            )
+        return True
+
     else:
-        print(info["statement_path"], "   result: ", ";")
-        print("time: ", [t - info["timestamps"][0] for t in info["timestamps"]])
-    return
+        java_file = "javaCode.txt"
+        with open(temp_folder + java_file, "w") as output_file:
+            output_file.write(";")
+
+        time_file = "times.txt"
+        times_in_msec = [round(1000 * t) for t in info["timestamps"]]
+        times = [round(t - times_in_msec[0]) for t in times_in_msec]
+        differences = [round(times[i + 1] - times[i]) for i in range(len(times) - 1)]
+        with open(temp_folder + time_file, "w") as output_file:
+            output_file.write(
+                str(time_measure_points) + "\n" + str(times) + "\n" + str(differences)
+            )
+
+        return False
 
 
 def extract_synthesized_method_body(input_string):
@@ -168,4 +220,3 @@ if __name__ == "__main__":
     }
     variables = read_vars_from_corc_model(my_info["cbcmodel_path"], my_info["cbc_id"])
     print("done")
-    # execute_sygus_pipeline(my_info)

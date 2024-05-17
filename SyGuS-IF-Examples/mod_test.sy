@@ -1,0 +1,32 @@
+(set-logic ALL)
+
+(declare-var x_preCon Int)
+(declare-var x_postCon Int)
+(declare-var c_preCon Int)
+(declare-var c_postCon Int)
+
+(define-fun preCondition ((x_preCon Int) (c_preCon Int)) Bool
+    (= x_preCon c_preCon)
+)
+
+(define-fun postCondition ((x_postCon Int) (c_postCon Int)) Bool
+    (and (= 1 (div x_postCon 5))
+	(< (abs x_postCon) 10))
+)
+
+(synth-fun targetFunction ((x Int) (c Int)) Int)
+
+(declare-var x_in Int)
+(declare-var x_out Int)
+(declare-var c_in Int)
+
+(constraint (forall ((x_in Int) (c_in Int) (x_out Int)) 
+    (=>
+        (and 
+            (preCondition x_in c_in) 
+            (= x_out (targetFunction x_in c_in))
+        )
+        (postCondition x_out c_in)
+    )
+))
+(check-synth)

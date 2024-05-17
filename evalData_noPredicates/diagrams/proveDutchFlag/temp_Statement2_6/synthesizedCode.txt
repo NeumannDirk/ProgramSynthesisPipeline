@@ -1,0 +1,3 @@
+(
+(define-fun targetFunction ((A (Seq Int)) (t Int) (wt Int) (wb Int) (bb Int)) Tuple (mkTuple (as seq.empty (Seq Int)) 0 0 0))
+)

@@ -1,0 +1,1 @@
+int[] A_preVersion = A; int wt_preVersion = wt; int wb_preVersion = wb; int bb_preVersion = bb; A = None; wt = 0; wb = 0; bb = 0; 
